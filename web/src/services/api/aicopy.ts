@@ -69,7 +69,17 @@ if (requiresPublicMedia) {
   videos = await Promise.all(videos.map(uploadPublicMedia));
   audios = await Promise.all(audios.map(uploadPublicMedia));
 }
-const seconds = String(params.seconds || "6"); const resolution = params.resolution || "720p"; const ratio = params.ratio && /^\d+:\d+$/.test(params.ratio) ? params.ratio : "16:9";
+const seconds = String(params.seconds || "6"); const resolution = params.resolution || "720p";
+const ratio = (() => {
+  if (params.ratio && /^\d+:\d+$/.test(params.ratio)) return params.ratio;
+  const [width, height] = String(params.ratio || "").split("x").map(Number);
+  if (width > 0 && height > 0) {
+    const divisor = (left, right) => right ? divisor(right, left % right) : left;
+    const gcd = divisor(width, height);
+    return (width / gcd) + ":" + (height / gcd);
+  }
+  return "16:9";
+})();
 const first = refs[0]; const last = refs[1];
 const isMultiRoute = refs.length > 1 || videos.length || audios.length || model.includes("h3") || model.includes("惊喜渠道") && (refs.length > 1 || videos.length || audios.length);
 let path = isMultiRoute && (model.includes("h3") || model.includes("惊喜渠道")) ? "/v1/video/generations" : "/v1/videos";

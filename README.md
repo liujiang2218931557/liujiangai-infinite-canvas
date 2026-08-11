@@ -83,6 +83,8 @@ bun install
 bun run dev
 ```
 
+Windows 可以直接双击桌面的“启动无限画布”快捷方式；它会在需要时启动本地前端，并打开 `http://localhost:3000/canvas`。
+
 Windows 新电脑安装 Node.js 22 LTS 与 Git for Windows 后，可在仓库根目录运行 `powershell -ExecutionPolicy Bypass -File .\scripts\windows-verify.ps1` 完成依赖安装、类型检查与构建；详见 [Windows 从零复现](docs/WINDOWS_REPRODUCTION.md)。
 
 ### Docker 运行
