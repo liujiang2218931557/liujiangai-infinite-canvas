@@ -5,9 +5,9 @@
 - Date: 2026-08-12
 - Repository: `liujiang2218931557/liujiangai-infinite-canvas`
 - Branch: `main`
-- Commit before initial push: not yet created when this document was written; the completion message must update this line after commit and push.
+- Initial published baseline: `eb83077` (`feat: connect canvas to liujiang New API`). This handoff status update is committed immediately after it.
 - Source type: MIT-licensed Infinite Canvas fork with a fixed New API relay channel. New API itself is not copied into this repository.
-- Push status: pending final staged-content audit and initial `main` push.
+- Push status: `eb83077` was pushed successfully to `origin/main` on 2026-08-12.
 
 ## What This Session Completed
 
@@ -20,7 +20,6 @@
 
 ## Work Not Finished
 
-- P0: Complete the first GitHub push and verify remote `main`. See `docs/TODO.md`.
 - P1: User-owned New API Token browser smoke test for `/v1/models`; no actual Token is available to this repository or handoff.
 - P1: User-authorized limited paid generation test. Do not create paid requests merely as an engineering check.
 - P2: CORS narrowing, SCF abuse controls, and bundle size improvements.
@@ -98,7 +97,7 @@ Not verified:
 
 1. Read this file, then `docs/CURRENT_STATE.md`, then `README.md`.
 2. Run `git pull`, inspect `git status -sb`, install dependencies with `npm.cmd ci` in `web/`, and run `powershell -ExecutionPolicy Bypass -File .\scripts\windows-verify.ps1 -SkipInstall`.
-3. Start only with the P0 item in `docs/TODO.md`; do not resurrect rejected old endpoints.
+3. Start with the highest-priority open item in `docs/TODO.md`; do not resurrect rejected old endpoints.
 4. Treat the code and latest commit as authoritative if documentation conflicts, then update the conflicting document in the same change.
 5. Keep all real credentials outside Git and do not run paid tests without user authorization.
 
@@ -113,5 +112,5 @@ Not verified:
 
 1. First read `docs/HANDOFF.md` -> `docs/CURRENT_STATE.md` -> `README.md`.
 2. Then `git pull`, install dependencies, copy only the appropriate example environment file if operating a gateway, and perform the documented smoke test.
-3. Begin only from P0 in `docs/TODO.md`; do not reintroduce explicitly rejected approaches.
+3. Begin from the highest-priority open item in `docs/TODO.md`; do not reintroduce explicitly rejected approaches.
 4. If documentation conflicts with code, the latest code and commit are authoritative. Fix the document immediately after confirming the code fact.

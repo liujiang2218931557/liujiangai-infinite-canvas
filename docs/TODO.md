@@ -1,12 +1,5 @@
 # TODO
 
-## P0
-
-- [ ] Publish reviewed source to GitHub.
-  - Files: all tracked source, docs, and configuration examples.
-  - Dependency: final secret scan and staged diff review.
-  - Acceptance: `main` is pushed to `https://github.com/liujiang2218931557/liujiangai-infinite-canvas`, and remote `main` resolves to the reviewed commit.
-
 ## P1
 
 - [ ] Verify a normal user's New API Token can list models in the browser.

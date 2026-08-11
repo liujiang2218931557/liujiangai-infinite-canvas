@@ -15,7 +15,7 @@ Last reviewed: 2026-08-12.
 
 ## In Progress
 
-- [ ] P0: Publish this reviewed source tree to the configured GitHub repository. Status: pending the first push after final staged-content review.
+- [x] P0: Published reviewed source tree to `origin/main` at commit `eb83077`.
 - [ ] P1: End-to-end browser validation with a newly created ordinary New API user token. Blocker: the token must be entered by its owner and must not be recorded in Git, terminal output, or screenshots.
 - [ ] P1: Controlled paid image/video generation validation. Blocker: user authorization and a deliberately limited test balance.
 
