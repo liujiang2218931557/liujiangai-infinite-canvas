@@ -12,12 +12,15 @@ Last reviewed: 2026-08-12.
 - [x] Windows support is documented; `.nvmrc` pins Node 22 and `scripts/windows-verify.ps1` uses `npm.cmd` for PowerShell execution-policy compatibility.
 - [x] A clean Windows-style `npm.cmd ci`, `npm.cmd run typecheck`, and `npm.cmd run build` succeeded during this handoff.
 - [x] Local Vite smoke test returned HTTP 200 from `http://localhost:3000`.
+- [x] The Seedance 2.5 canvas adapter accepts task-result URLs from the common top-level, `data`, and `result` response envelopes, and uses `/content?variant=video` before the legacy content fallback.
+- [x] The canvas rejects a final Seedance 2.5 prompt longer than 5,000 characters locally, before a billable task request is sent.
 
 ## In Progress
 
 - [x] P0: Published reviewed source tree to `origin/main` at commit `eb83077`.
 - [ ] P1: End-to-end browser validation with a newly created ordinary New API user token. Blocker: the token must be entered by its owner and must not be recorded in Git, terminal output, or screenshots.
 - [ ] P1: Controlled paid image/video generation validation. Blocker: user authorization and a deliberately limited test balance.
+- [ ] P1: Reconcile the New API task state with the AICopy task that was observed as completed in the upstream dashboard. Blocker: the two task IDs have not yet been correlated; New API currently logs `upstream returned error` for the three canvas submissions on 2026-08-12.
 
 ## Not Started
 

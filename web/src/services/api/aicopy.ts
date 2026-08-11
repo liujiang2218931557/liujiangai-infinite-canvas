@@ -62,6 +62,15 @@ return (data.data || []).map((item) => item.url || item.b64_json && "data:image/
 const VIDEO_SCRIPT = String.raw`
 const apiBase = baseUrl.replace(/\/v1\/?$/, "");
 const toUrl = (url) => typeof url === "string" && url.startsWith("/") ? apiBase + url : url;
+const firstUrl = (state) => [
+  state?.video_url, state?.result_url, state?.url, state?.final_url,
+  state?.result?.video_url, state?.result?.result_url, state?.result?.url,
+  state?.output?.video_url, state?.output?.url,
+  state?.data?.video_url, state?.data?.result_url, state?.data?.url,
+  state?.data?.result?.video_url, state?.data?.result?.result_url, state?.data?.result?.url,
+].find((value) => typeof value === "string" && value.trim());
+const taskStatus = (state) => String(state?.status || state?.state || state?.data?.status || state?.data?.state || state?.result?.status || "").toLowerCase();
+const taskError = (state) => state?.error?.message || state?.error_message || state?.message || state?.msg || state?.data?.error?.message || state?.data?.error_message || state?.data?.message || "AICopy 视频生成失败";
 let refs = images || []; let videos = params.videoReferences || []; let audios = params.audioReferences || [];
 const requiresPublicMedia = model.startsWith("sd") || model.startsWith("happyhorse") || model.includes("惊喜渠道") || model.includes("omni-fast");
 if (requiresPublicMedia) {
@@ -110,17 +119,24 @@ else if (refs.length > 1 || videos.length || audios.length) body = { ...body, im
 else if (first) body = { ...body, input_reference: { image_url: first } };
 const created = await request({ method: "post", url: apiBase + path, headers: { Authorization: "Bearer " + apiKey, "Content-Type": "application/json" }, data: body });
 const taskId = created.id || created.task_id || created.taskId || created.data?.id || created.data?.task_id;
-const direct = created.video_url || created.result_url || created.url || created.data?.video_url || created.data?.url;
+const direct = firstUrl(created);
   if (direct) return { url: toUrl(direct) };
 if (!taskId) throw new Error(created.message || created.msg || "AICopy 未返回视频任务 ID");
 const queryPath = path + "/" + encodeURIComponent(taskId);
 return await poll(() => request({ method: "get", url: apiBase + queryPath, headers: { Authorization: "Bearer " + apiKey } }), async (state) => {
-  const url = state.video_url || state.result_url || state.url || state.final_url || state.data?.video_url || state.data?.url;
+  const url = firstUrl(state);
   if (url) return { url: toUrl(url) };
-  const status = String(state.status || state.data?.status || "").toLowerCase();
-  if (["failed", "failure", "error", "cancelled", "canceled"].includes(status)) throw new Error(state.error?.message || state.message || state.msg || "AICopy 视频生成失败");
+  const status = taskStatus(state);
+  if (["failed", "failure", "error", "cancelled", "canceled"].includes(status)) throw new Error(taskError(state));
   if (["completed", "succeeded", "success", "done", "finished"].includes(status)) {
-    const content = await request({ method: "get", url: apiBase + "/v1/videos/" + encodeURIComponent(taskId) + "/content", headers: { Authorization: "Bearer " + apiKey }, responseType: "blob" });
+    // SD 2.5 and SD 2.0 expose the completed MP4 through the documented
+    // variant endpoint. Keep the plain endpoint as a compatibility fallback.
+    let content;
+    try {
+      content = await request({ method: "get", url: apiBase + "/v1/videos/" + encodeURIComponent(taskId) + "/content?variant=video", headers: { Authorization: "Bearer " + apiKey }, responseType: "blob" });
+    } catch {
+      content = await request({ method: "get", url: apiBase + "/v1/videos/" + encodeURIComponent(taskId) + "/content", headers: { Authorization: "Bearer " + apiKey }, responseType: "blob" });
+    }
     return { blob: content };
   }
   return null;

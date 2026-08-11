@@ -86,6 +86,7 @@ export async function pollVideoGenerationTask(config: AiConfig, task: VideoGener
 async function createPluginVideoTask(config: AiConfig, model: string, script: string, prompt: string, references: ReferenceImage[], videoReferences: ReferenceVideo[], audioReferences: ReferenceAudio[], options?: RequestOptions): Promise<VideoGenerationTask> {
     if (!config.baseUrl.trim()) throw new Error(apiText("baseUrlRequired"));
     if (!config.apiKey.trim()) throw new Error(apiText("apiKeyRequired"));
+    assertSeedance25PromptLength(model, prompt);
     const refs = await Promise.all(references.map(async (image) => /^https?:\/\//i.test(image.url || "") ? image.url! : imageToDataUrl(image)));
     const videos = await Promise.all(videoReferences.map(resolvePluginMediaUrl));
     const audios = await Promise.all(audioReferences.map(resolvePluginMediaUrl));
@@ -310,6 +311,14 @@ function assertVideoConfig(config: AiConfig, model: string) {
 function normalizeVideoSeconds(value: string) {
     const seconds = Math.floor(Number(value) || 6);
     return String(Math.max(4, Math.min(29, seconds)));
+}
+
+// Seedance 2.5 rejects prompts above this limit after the task is submitted.
+// Validate the final canvas prompt here so normal generation and retries both
+// fail locally instead of creating a doomed upstream task.
+function assertSeedance25PromptLength(model: string, prompt: string) {
+    if (!model.startsWith("sd-2.5-") || prompt.length <= 5000) return;
+    throw new Error("Seedance 2.5 提示词超过上游 5000 字符限制，请缩短连接到当前节点的文本、全局法则或视频提示词后重试。");
 }
 
 function normalizeVideoSize(value: string) {
