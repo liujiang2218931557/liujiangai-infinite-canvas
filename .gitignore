@@ -1,0 +1,25 @@
+.next/
+out/
+node_modules/
+.env*
+!.env.example
+data/
+*.log
+*.tsbuildinfo
+.DS_Store
+.idea
+web/dist
+
+**/dist
+web/public/plugins
+plugins/canvas/*/dist
+plugins/canvas/*/node_modules
+web/public/plugins
+media-gateway/.env
+cloud-media-gateway/node_modules/
+cloud-media-gateway/deploy*.zip
+release/
+.agents/
+
+# Local legacy handoff scratch directory. Its useful content is maintained in docs/.
+无限画布改动/

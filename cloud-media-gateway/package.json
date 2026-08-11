@@ -1,0 +1,10 @@
+{
+  "name": "infinite-canvas-cos-cloud-gateway",
+  "private": true,
+  "type": "module",
+  "main": "index.mjs",
+  "dependencies": {
+    "busboy": "^1.6.0",
+    "cos-nodejs-sdk-v5": "^2.14.7"
+  }
+}

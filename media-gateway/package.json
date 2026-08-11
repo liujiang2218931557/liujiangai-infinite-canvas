@@ -1,0 +1,13 @@
+{
+  "name": "infinite-canvas-cos-media-gateway",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node index.mjs"
+  },
+  "dependencies": {
+    "busboy": "^1.6.0",
+    "cos-nodejs-sdk-v5": "^2.14.7",
+    "dotenv": "^16.6.1"
+  }
+}
