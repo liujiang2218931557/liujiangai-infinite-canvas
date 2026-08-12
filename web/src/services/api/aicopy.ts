@@ -138,12 +138,15 @@ else if (model.startsWith("sd2-") && !model.includes("全系按秒")) body = { m
 else if (model.includes("sd-720") && !model.includes("900")) body = {
   model,
   prompt,
-  aspect_ratio: ratio,
-  seconds: model.includes("按次") ? "15" : seconds,
-  resolution: "720p",
-  ...(refs.length > 1 || videos.length || audios.length
-    ? { ...(refs.length ? { reference_image_urls: refs } : {}), ...(videos.length ? { reference_videos: videos } : {}), ...(audios.length ? { reference_audios: audios } : {}) }
-    : first ? { first_frame_url: first } : {}),
+  duration: 15,
+  metadata: {
+    ratio,
+    enableSound: params.generateAudio ? "on" : "off",
+    modeType: refs.length > 1 ? "frames2video" : refs.length ? "image2video" : "text2video",
+  },
+  ...(refs.length ? { images: refs } : {}),
+  ...(videos.length ? { videos } : {}),
+  ...(audios.length ? { audios } : {}),
 };
 else if (model.includes("sd-720满血-900")) body = { model, prompt, duration: "15", aspect_ratio: ratio, resolution: "720p", reference_images: refs.map((url) => ({ url })) };
 else if (model.includes("可灵-3.0") && isMultiRoute) body = { model, prompt, duration: Number(seconds), resolution, aspect_ratio: ratio, n: 1, images: refs, video_references: videos, audio_references: audios };

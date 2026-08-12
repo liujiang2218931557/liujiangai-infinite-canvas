@@ -184,10 +184,12 @@ for (const model of ["sd-2.5-720p不卡脸(按次)", "sd-720满血-不卡脸（�
         assert.equal(calls[0].data.videos.length, 1);
         assert.equal(calls[0].data.audios.length, 1);
     } else {
-        assert.equal(calls[0].data.seconds, "15");
-        assert.equal(calls[0].data.reference_image_urls.length, 2);
-        assert.equal(calls[0].data.reference_videos.length, 1);
-        assert.equal(calls[0].data.reference_audios.length, 1);
+        assert.equal(calls[0].data.duration, 15);
+        assert.equal(calls[0].data.metadata.ratio, "9:16");
+        assert.equal(calls[0].data.metadata.modeType, "frames2video");
+        assert.equal(calls[0].data.images.length, 2);
+        assert.equal(calls[0].data.videos.length, 1);
+        assert.equal(calls[0].data.audios.length, 1);
     }
 }
 
