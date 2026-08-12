@@ -1,0 +1,115 @@
+# Project Map
+
+Root: `D:\codex项目全目录\codex工作区目录测试\liujiangai-infinite-canvas-publish`
+
+- `.agents/`: `plugins/`, `skills/`
+- `.agents/plugins/`: `marketplace.json`
+- `.agents/skills/`: `frontend-design/`, `vercel-react-best-practices/`
+- `.agents/skills/frontend-design/`: `LICENSE.txt`, `SKILL.md`
+- `.agents/skills/vercel-react-best-practices/`: `AGENTS.md`, `metadata.json`, `README.md`, `rules/`, `SKILL.md`
+- `.agents/skills/vercel-react-best-practices/rules/`: `_sections.md`, `_template.md`, `advanced-effect-event-deps.md`, `advanced-event-handler-refs.md`, `advanced-init-once.md`, `advanced-use-latest.md`, `async-api-routes.md`, `async-cheap-condition-before-await.md`, `async-defer-await.md`, `async-dependencies.md`, `async-parallel.md`, `async-suspense-boundaries.md`, `bundle-analyzable-paths.md`, `bundle-barrel-imports.md`, `bundle-conditional.md`, `bundle-defer-third-party.md`, `bundle-dynamic-imports.md`, `bundle-preload.md`, `client-event-listeners.md`, `client-localstorage-schema.md`, `client-passive-event-listeners.md`, `client-swr-dedup.md`, `js-batch-dom-css.md`, `js-cache-function-results.md`, `js-cache-property-access.md`, `js-cache-storage.md`, `js-combine-iterations.md`, `js-early-exit.md`, `js-flatmap-filter.md`, `js-hoist-regexp.md`, `js-index-maps.md`, `js-length-check-first.md`, `js-min-max-loop.md`, `js-request-idle-callback.md`, `js-set-map-lookups.md`, `js-tosorted-immutable.md`, `rendering-activity.md`, `rendering-animate-svg-wrapper.md`, `rendering-conditional-render.md`, `rendering-content-visibility.md`, `rendering-hoist-jsx.md`, `rendering-hydration-no-flicker.md`, `rendering-hydration-suppress-warning.md`, `rendering-resource-hints.md`, `rendering-script-defer-async.md`, `rendering-svg-precision.md`, `rendering-usetransition-loading.md`, `rerender-defer-reads.md`, `rerender-dependencies.md`, `rerender-derived-state-no-effect.md`, `rerender-derived-state.md`, `rerender-functional-setstate.md`, `rerender-lazy-state-init.md`, `rerender-memo-with-default-value.md`, `rerender-memo.md`, `rerender-move-effect-to-event.md`, `rerender-no-inline-components.md`, `rerender-simple-expression-in-memo.md`, `rerender-split-combined-hooks.md`, `rerender-transitions.md`, `rerender-use-deferred-value.md`, `rerender-use-ref-transient-values.md`, `server-after-nonblocking.md`, `server-auth-actions.md`, `server-cache-lru.md`, `server-cache-react.md`, `server-dedup-props.md`, `server-hoist-static-io.md`, `server-no-shared-module-state.md`, `server-parallel-fetching.md`, `server-parallel-nested-fetching.md`, `server-serialization.md`
+- `.github/`: `workflows/`
+- `.github/workflows/`: `docker-image.yml`, `docs-docker-image.yml`, `github-pages.yml`, `publish-plugins.yml`
+- `assets/`: `atlascloud.svg`, `infistar.png`
+- `canvas-agent/`: `.gitignore`, `agent-instructions.md`, `bun.lock`, `codex-server.md`, `package.json`, `README.md`, `src/`, `tsconfig.json`
+- `canvas-agent/src/`: `agent/`, `canvas/`, `config.ts`, `index.ts`, `server/`, `skills/`, `utils/`, `version-check.ts`
+- `canvas-agent/src/agent/`: `claude.ts`, `codex-client.test.ts`, `codex-client.ts`, `codex-event-history.ts`, `codex-history.test.ts`, `codex-history.ts`, `codex-protocol.ts`, `codex.ts`, `message-metadata.test.ts`, `message-metadata.ts`, `types.ts`
+- `canvas-agent/src/canvas/`: `operations.ts`, `schemas.ts`, `session.test.ts`, `session.ts`, `tools.ts`, `types.ts`
+- `canvas-agent/src/server/`: `http.ts`, `mcp.ts`
+- `canvas-agent/src/skills/`: `store.test.ts`, `store.ts`
+- `canvas-agent/src/utils/`: `date.ts`, `logger.ts`, `value.ts`
+- `cloud-media-gateway/`: `.env.example`, `create-user-token.mjs`, `index.mjs`, `package.json`, `README.md`
+- `docs/`: `.dockerignore`, `.gitignore`, `ARCHITECTURE.md`, `bun.lock`, `CHANGELOG_SESSION.md`, `content/`, `CURRENT_STATE.md`, `docker-compose.local.yml`, `docker-compose.yml`, `Dockerfile`, `HANDOFF.md`, `index.md`, `index.zh-CN.md`, `NEW_API_CANVAS_INTEGRATION.md`, `next.config.mjs`, `package.json`, `postcss.config.mjs`, `public/`, `README.md`, `RESULT_WRITEBACK.md`, `REUSE_SOURCES.md`, `RUNBOOK.md`, `source.config.ts`, `src/`, `TODO.md`, `tsconfig.json`, `vercel.json`, `WINDOWS_REPRODUCTION.md`
+- `docs/content/`: `docs/`
+- `docs/content/docs/`: `business/`, `canvas/`, `development/`, `meta.json`, `meta.zh-CN.json`, `overview/`, `progress/`, `support/`
+- `docs/content/docs/business/`: `business.mdx`, `business.zh-CN.mdx`, `license.mdx`, `license.zh-CN.mdx`, `meta.json`, `meta.zh-CN.json`
+- `docs/content/docs/canvas/`: `canvas-node-manual.mdx`, `canvas-node-manual.zh-CN.mdx`, `canvas-shortcuts.mdx`, `canvas-shortcuts.zh-CN.mdx`, `meta.json`, `meta.zh-CN.json`
+- `docs/content/docs/development/`: `canvas-data-structure.mdx`, `canvas-data-structure.zh-CN.mdx`, `local-codex-canvas.mdx`, `local-codex-canvas.zh-CN.mdx`, `local-development.mdx`, `local-development.zh-CN.mdx`, `meta.json`, `meta.zh-CN.json`
+- `docs/content/docs/overview/`: `codex-app-plugin.mdx`, `codex-app-plugin.zh-CN.mdx`, `docker.mdx`, `docker.zh-CN.mdx`, `features.mdx`, `features.zh-CN.mdx`, `meta.json`, `meta.zh-CN.json`, `quick-start.mdx`, `quick-start.zh-CN.mdx`, `render.mdx`, `render.zh-CN.mdx`, `third-party-prompt-repositories.mdx`, `third-party-prompt-repositories.zh-CN.mdx`
+- `docs/content/docs/progress/`: `local-agent-integration-plan.mdx`, `local-agent-integration-plan.zh-CN.mdx`, `meta.json`, `meta.zh-CN.json`, `pending-test.mdx`, `pending-test.zh-CN.mdx`, `prompt-chip-input-plan.mdx`, `prompt-chip-input-plan.zh-CN.mdx`, `todo.mdx`, `todo.zh-CN.mdx`
+- `docs/content/docs/support/`: `meta.json`, `meta.zh-CN.json`, `security.mdx`, `security.zh-CN.mdx`, `sponsor.mdx`, `sponsor.zh-CN.mdx`
+- `docs/public/`: `github.svg`, `logo.svg`, `qq.svg`
+- `docs/src/`: `app/`, `components/`, `lib/`, `proxy.ts`
+- `docs/src/app/`: `[lang]/`, `api/`, `global.css`, `icon.svg`, `llms-full.txt/`, `llms.mdx/`, `llms.txt/`
+- `docs/src/app/[lang]/`: `(home)/`, `docs/`, `layout.tsx`
+- `docs/src/app/[lang]/(home)/`: `layout.tsx`, `page.tsx`
+- `docs/src/app/[lang]/docs/`: `[...slug]/`, `layout.tsx`, `page.tsx`, `progress/`
+- `docs/src/app/[lang]/docs/[...slug]/`: `page.tsx`
+- `docs/src/app/[lang]/docs/progress/`: `changelog/`
+- `docs/src/app/[lang]/docs/progress/changelog/`: `page.tsx`
+- `docs/src/app/api/`: `search/`
+- `docs/src/app/api/search/`: `route.ts`
+- `docs/src/app/llms-full.txt/`: `route.ts`
+- `docs/src/app/llms.mdx/`: `docs/`
+- `docs/src/app/llms.mdx/docs/`: `[[...slug]]/`
+- `docs/src/app/llms.mdx/docs/[[...slug]]/`: `route.ts`
+- `docs/src/app/llms.txt/`: `route.ts`
+- `docs/src/components/`: `docs-top-tabs.tsx`, `mdx.tsx`, `provider.tsx`, `search.tsx`
+- `docs/src/lib/`: `cn.ts`, `doc-page.tsx`, `i18n.ts`, `layout.shared.tsx`, `search-tokenizer.ts`, `shared.ts`, `source.ts`
+- `media-gateway/`: `.env.example`, `index.mjs`, `package.json`, `README.md`
+- `plugins/`: `canvas/`, `infinite-canvas/`
+- `plugins/canvas/`: `html/`, `markdown/`, `panorama/`, `README.md`, `registry/`, `sdk/`, `sticky-note/`, `svg/`, `template/`
+- `plugins/canvas/html/`: `build.mjs`, `package.json`, `README.md`, `src/`, `tsconfig.json`
+- `plugins/canvas/html/src/`: `index.tsx`
+- `plugins/canvas/markdown/`: `build.mjs`, `package.json`, `README.md`, `src/`, `tsconfig.json`
+- `plugins/canvas/markdown/src/`: `env.d.ts`, `index.tsx`, `styles.css`
+- `plugins/canvas/panorama/`: `build.mjs`, `package.json`, `README.md`, `src/`, `tsconfig.json`
+- `plugins/canvas/panorama/src/`: `env.d.ts`, `index.tsx`
+- `plugins/canvas/registry/`: `build.mjs`, `package.json`, `README.md`
+- `plugins/canvas/sdk/`: `build.mjs`, `package.json`, `README.md`, `src/`, `tsconfig.json`
+- `plugins/canvas/sdk/src/`: `define-plugin.ts`, `index.ts`, `jsx-dev-runtime.ts`, `jsx-runtime.ts`, `runtime.ts`, `types.ts`
+- `plugins/canvas/sticky-note/`: `build.mjs`, `package.json`, `README.md`, `src/`, `tsconfig.json`
+- `plugins/canvas/sticky-note/src/`: `index.tsx`
+- `plugins/canvas/svg/`: `build.mjs`, `package.json`, `README.md`, `src/`, `tsconfig.json`
+- `plugins/canvas/svg/src/`: `index.tsx`
+- `plugins/canvas/template/`: `build.mjs`, `package.json`, `README.md`, `src/`, `tsconfig.json`
+- `plugins/canvas/template/src/`: `index.tsx`
+- `plugins/infinite-canvas/`: `.mcp.json`, `assets/`, `README.md`, `skills/`
+- `plugins/infinite-canvas/.codex-plugin/`: `plugin.json`
+- `plugins/infinite-canvas/assets/`: `icon.png`
+- `plugins/infinite-canvas/skills/`: `canvas/`, `open-canvas/`
+- `plugins/infinite-canvas/skills/canvas/`: `SKILL.md`
+- `plugins/infinite-canvas/skills/open-canvas/`: `SKILL.md`
+- `scripts/`: `start-windows.ps1`, `windows-verify.ps1`
+- `web/`: `.editorconfig`, `.prettierignore`, `.prettierrc.json`, `bun.lock`, `components.json`, `docker-entrypoint.sh`, `index.html`, `package.json`, `postcss.config.mjs`, `public/`, `scripts/`, `src/`, `tsconfig.json`, `tsconfig.tsbuildinfo`, `vercel.json`, `vite.config.ts`
+- `web/public/`: `config.js`, `icons/`, `logo.svg`
+- `web/public/icons/`: `claude.svg`, `deepseek.svg`, `gemini.svg`, `glm.svg`, `grok.svg`, `linuxdo.svg`, `openai.svg`
+- `web/scripts/`: `verify-aicopy-adapter.mjs`
+- `web/src/`: `components/`, `constant/`, `hooks/`, `i18n/`, `layouts/`, `lib/`, `main.tsx`, `pages/`, `router.tsx`, `services/`, `stores/`, `styles/`, `types/`, `vite-env.d.ts`
+- `web/src/components/`: `agent/`, `audio-settings-panel.tsx`, `canvas/`, `image-generation-pending.tsx`, `image-settings-panel.tsx`, `layout/`, `model-picker.tsx`, `prompts/`, `text-settings-panel.tsx`, `ui/`, `video-settings-panel.tsx`
+- `web/src/components/agent/`: `agent-canvas-reference-preview.tsx`, `agent-chat-composer.tsx`, `agent-chat-inline-tokens.ts`, `agent-chat-message.tsx`, `agent-chat-prompt-input.tsx`, `agent-chat.tsx`, `agent-connect-view.tsx`, `agent-event-formatters.ts`, `agent-history-view.tsx`, `agent-log-view.tsx`, `agent-panel-tabs.tsx`, `agent-panel.tsx`, `agent-scroll-to-bottom.tsx`, `agent-skills-view.tsx`, `local-agent-panel.tsx`
+- `web/src/components/canvas/`: `asset-picker-modal.tsx`, `canvas-audio-settings-popover.tsx`, `canvas-config-composer.tsx`, `canvas-config-node-panel.tsx`, `canvas-connections.tsx`, `canvas-context-menu.tsx`, `canvas-create-menus.tsx`, `canvas-delete-projects-dialog.tsx`, `canvas-image-settings-popover.tsx`, `canvas-image-toolbar-settings-modal.tsx`, `canvas-image-toolbar-tools.tsx`, `canvas-mini-map.tsx`, `canvas-node-angle-dialog.tsx`, `canvas-node-crop-dialog.tsx`, `canvas-node-generation.ts`, `canvas-node-hover-toolbar.tsx`, `canvas-node-mask-edit-dialog.tsx`, `canvas-node-prompt-panel.tsx`, `canvas-node-split-dialog.tsx`, `canvas-node-upscale-dialog.tsx`, `canvas-node.tsx`, `canvas-plugin-manager-modal.tsx`, `canvas-project-card.tsx`, `canvas-prompt-chip-input.tsx`, `canvas-prompt-library.tsx`, `canvas-refresh-shell.tsx`, `canvas-resource-mention-textarea.tsx`, `canvas-side-panel.tsx`, `canvas-size-picker.tsx`, `canvas-text-settings-popover.tsx`, `canvas-toolbar.tsx`, `canvas-top-bar.tsx`, `canvas-video-settings-popover.tsx`, `canvas-zoom-controls.tsx`, `infinite-canvas.tsx`, `nodes/`, `use-image-editor-viewport.ts`
+- `web/src/components/canvas/nodes/`: `builtin-nodes.tsx`
+- `web/src/components/layout/`: `analytics-tracker.tsx`, `app-config-modal.tsx`, `app-providers.tsx`, `app-top-nav.tsx`, `channel-editor-drawer.tsx`, `client-root-init.tsx`, `config-local-storage.tsx`, `config-prompt-sources.tsx`, `github-link.tsx`, `mobile-nav-drawer.tsx`, `model-script-editor.tsx`, `model-select-modal.tsx`, `prompt-source-content-modal.tsx`, `prompt-source-editor-drawer.tsx`, `user-status-actions.tsx`, `version-release-modal.tsx`
+- `web/src/components/prompts/`: `prompt-card.tsx`, `prompt-select-dialog.tsx`, `use-prompt-list.ts`
+- `web/src/components/ui/`: `animated-theme-toggler.tsx`, `dia-text-reveal.tsx`, `select.tsx`
+- `web/src/constant/`: `canvas.ts`, `env.ts`, `navigation-tools.ts`, `runtime-config.ts`
+- `web/src/hooks/`: `use-copy-text.ts`, `use-prompt-source-scheduler.ts`, `use-version-check.ts`
+- `web/src/i18n/`: `index.ts`, `locales/`
+- `web/src/i18n/locales/`: `en-US.ts`, `zh-CN.ts`
+- `web/src/layouts/`: `user-layout.tsx`
+- `web/src/lib/`: `agent/`, `analytics.ts`, `app-theme.ts`, `audio-generation.ts`, `canvas/`, `canvas-theme.ts`, `image-reference-prompt.ts`, `image-utils.ts`, `keyboard-event.ts`, `localforage-storage.ts`, `release.ts`, `seedance-video.ts`, `utils.ts`, `zip.ts`
+- `web/src/lib/agent/`: `agent-site-tools.ts`
+- `web/src/lib/canvas/`: `canvas-agent-ops.ts`, `canvas-event-bus.ts`, `canvas-export.ts`, `canvas-generation-helpers.ts`, `canvas-image-data.ts`, `canvas-node-factory.ts`, `canvas-node-geometry.ts`, `canvas-node-size.ts`, `canvas-resource-references.ts`, `node-registry.ts`, `plugin-loader.ts`, `plugin-node-context.ts`, `plugin-registry.ts`, `plugin-runtime.ts`
+- `web/src/pages/`: `assets/`, `canvas/`, `config/`, `home/`, `image/`, `not-found/`, `prompts/`, `video/`
+- `web/src/pages/assets/`: `asset-transfer.ts`, `index.tsx`
+- `web/src/pages/canvas/`: `hooks/`, `index.tsx`, `project.tsx`
+- `web/src/pages/canvas/hooks/`: `use-agent-bridge.ts`, `use-plugin-host.tsx`
+- `web/src/pages/config/`: `index.tsx`
+- `web/src/pages/home/`: `index.tsx`
+- `web/src/pages/image/`: `index.tsx`
+- `web/src/pages/not-found/`: `index.tsx`
+- `web/src/pages/prompts/`: `components/`, `index.tsx`
+- `web/src/pages/prompts/components/`: `prompt-detail-dialog.tsx`
+- `web/src/pages/video/`: `index.tsx`
+- `web/src/services/`: `api/`, `app-sync.ts`, `config-file.ts`, `file-storage.ts`, `image-storage.ts`, `local-storage-usage.ts`, `webdav-sync.ts`
+- `web/src/services/api/`: `aicopy.ts`, `audio.ts`, `canvas-agent.ts`, `image.ts`, `model-plugin.ts`, `prompt-source-presets.ts`, `prompt-source-runtime.ts`, `prompts.ts`, `request.ts`, `video.ts`
+- `web/src/stores/`: `canvas/`, `use-agent-skill-store.ts`, `use-agent-store.ts`, `use-asset-store.ts`, `use-canvas-side-panel-store.ts`, `use-config-store.ts`, `use-prompt-source-store.ts`, `use-theme-store.ts`, `use-user-store.ts`, `use-workbench-agent-store.ts`
+- `web/src/stores/canvas/`: `use-canvas-store.ts`, `use-canvas-ui-store.ts`, `use-plugin-store.ts`
+- `web/src/styles/`: `globals.css`
+- `web/src/types/`: `canvas-export.ts`, `canvas-plugin.ts`, `canvas.ts`, `image.ts`, `media.ts`
+- `鏃犻檺鐢诲竷鏀瑰姩/`: `config/`, `docs/`, `README.md`, `scripts/`, `src/`
+- `鏃犻檺鐢诲竷鏀瑰姩/config/`: `.env.example`
+- `鏃犻檺鐢诲竷鏀瑰姩/docs/`: `CHANGELOG_SESSION.md`, `CURRENT_STATE.md`, `GATEWAY.md`, `HANDOFF.md`, `RUNBOOK.md`, `TODO.md`
+- `鏃犻檺鐢诲竷鏀瑰姩/scripts/`: `README.md`
+- `鏃犻檺鐢诲竷鏀瑰姩/src/`: `README.md`
