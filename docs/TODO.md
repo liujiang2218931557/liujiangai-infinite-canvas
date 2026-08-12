@@ -13,6 +13,15 @@
     one owner-authorized non-billable or budget-limited task creates, reaches a
     terminal state, and writes preview media back to the canvas.
 
+- [ ] Reconcile SD2.5 public models with the upstream live inventory.
+  - Files: New API channel #1/product status outside this repository; no
+    frontend protocol change is indicated.
+  - Evidence: the documented 720p request reached channel #1, then upstream
+    returned HTTP 503 `当前请求的模型暂不可用，请更换模型后重试。`. Read-only
+    discovery reports one of the two configured SD2.5 models removed upstream.
+  - Acceptance: public model inventory, New API abilities/pricing, and upstream
+    available product IDs agree before another authorized media test.
+
 - [x] Reconcile the historical video task failure in New API production.
   - Files: New API production image/relay patch outside this repository;
     `web/src/services/api/aicopy.ts` and `web/src/services/api/video.ts` are
