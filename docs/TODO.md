@@ -2,6 +2,17 @@
 
 ## P0
 
+- [ ] Restore the upstream entitlement for the public SD2.0 model before a
+  canvas retest.
+  - Files: no frontend file should change; owner-managed New API channel #5
+    credential outside this repository.
+  - Evidence: channel #5 correctly maps `sd-720满血-不卡脸（按次）` to
+    `sd2-720p`, but the upstream returned HTTP 403 `This token has no access
+    to model sd2-720p`.
+  - Acceptance: the upstream key is explicitly authorized for `sd2-720p`, then
+    one owner-authorized non-billable or budget-limited task creates, reaches a
+    terminal state, and writes preview media back to the canvas.
+
 - [x] Reconcile the historical video task failure in New API production.
   - Files: New API production image/relay patch outside this repository;
     `web/src/services/api/aicopy.ts` and `web/src/services/api/video.ts` are

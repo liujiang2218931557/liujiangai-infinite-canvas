@@ -24,6 +24,11 @@
 
 ## Work Not Finished
 
+- P0: SD2.0 cannot submit until the owner changes the upstream product
+  entitlement for channel #5. The public model maps correctly to `sd2-720p`,
+  but its upstream credential returned HTTP 403 `This token has no access to
+  model sd2-720p`. This is not a canvas protocol, polling, or preview-writeback
+  defect; do not change the mapping to another model as a workaround.
 - P0: New API production polling compatibility is deployed in the separately
   licensed deployment repository. The historical task previously stuck at 30%
   was reconciled as a real upstream `FAILURE`, not a canvas polling failure.

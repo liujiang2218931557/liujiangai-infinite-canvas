@@ -45,6 +45,12 @@ Last reviewed: 2026-08-12.
   terminal state and canvas preview/writeback. Blocker: the audited historical
   task was truly failed, so it cannot validate success media. Do not submit a
   duplicate paid request merely to check it.
+- [ ] P0: Restore the SD2.0 product entitlement on the owner-managed upstream
+  key used by New API channel #5. The canvas protocol, New API public model,
+  and public-to-upstream mapping were audited on 2026-08-12. The upstream
+  returned HTTP 403 `This token has no access to model sd2-720p`; no task was
+  created, so polling and preview writeback are not implicated. Do not remap
+  the public SD2.0 product to another upstream model as a workaround.
 
 ## Not Started
 
@@ -66,3 +72,4 @@ Last reviewed: 2026-08-12.
 | Server cache | None in the static canvas; browser and upstream behavior are outside this repository |
 | Result writeback | Canvas stores successful image results as image-node metadata and successful video results as video-node metadata after URL/blob retrieval; this code path is built and contract-tested but has not been validated against a successful live New API task |
 | Video state diagnosis | The historical task that was at `in progress`/30% was checked against the upstream authenticated content route by the fixed New API poller and correctly became `FAILURE`/100%. The canvas now awaits an existing successful task to validate live media preview/writeback; no paid retry was made. |
+| SD2.0 403 diagnosis | Channel #5 maps `sd-720满血-不卡脸（按次）` to `sd2-720p`, and the canvas sends the documented `/v1/videos` request. The upstream Key lacks entitlement to `sd2-720p`. Update that upstream product/key permission before another test. |
