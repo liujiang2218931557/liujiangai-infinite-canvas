@@ -77,6 +77,30 @@
 
 模型展示名不等于上游模型名。脚本里的 `model` 字段才是发送给 New API 的实际模型名。新增或改价模型时，应先在 New API 后台完成模型/渠道/价格配置，再以低风险的 `GET /v1/models` 验证该用户 Token 是否可见；不要为了验证而发送付费生成请求。
 
+### Seedance 2.5 稳定渠道
+
+画布预置模型 `seedance-2.5-stable` 显示为 **Seedance 2.5 Stable
+Channel**。它固定请求 New API，而不直接请求聚客上游：New API 再映射到
+上游 `seedance-2-5-promo`。画布允许的参数与上游合同对齐：
+
+| Parameter | Values |
+| --- | --- |
+| Duration | `4, 5, 6, 8, 10, 12, 15, 20, 25, 29, 30` seconds |
+| Resolution | `480p`, `720p` |
+| Ratio | `16:9`, `9:16`, `21:9`, `3:4`, `1:1`, `4:3` |
+| Reference media | up to 30 images, 10 videos, and 10 audio files |
+
+The canvas turns local reference media into public HTTPS URLs through the
+user-configured media gateway before submitting the task. It rejects unsupported
+duration values locally, while New API repeats the validation and uses the
+requested duration as the billing multiplier. The intended operator price is
+CNY 1.00 per second, configured only in New API administration.
+
+The model will not work for users until the pending New API JuKe adapter is
+deployed, the channel has an owner key, its mapping is configured, and the
+appropriate group abilities and price are enabled. Those production steps are
+recorded in the relay repository's `docs/JUKE_SEEDANCE_2_5_STABLE.md`.
+
 ## CORS 验证与生产建议
 
 已用本地开发来源 `http://localhost:3000` 对以下地址做无 Key 的预检：

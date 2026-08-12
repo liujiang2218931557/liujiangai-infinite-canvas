@@ -1,5 +1,5 @@
 import i18n from "@/i18n";
-import { resolveModelRequestConfig, type AiConfig } from "@/stores/use-config-store";
+import { modelOptionName, resolveModelRequestConfig, type AiConfig } from "@/stores/use-config-store";
 import type { ReferenceImage } from "@/types/image";
 import type { ReferenceAudio, ReferenceVideo } from "@/types/media";
 
@@ -30,6 +30,7 @@ export const seedanceRatioOptions = [
 ] as const;
 
 export const seedanceDurationOptions = [-1, 4, 5, 6, 8, 10, 12, 15] as const;
+export const jukeSeedanceDurationOptions = [4, 5, 6, 8, 10, 12, 15, 20, 25, 29, 30] as const;
 
 const seedancePixels = {
     "480p": {
@@ -60,7 +61,15 @@ const seedancePixels = {
 
 export function isSeedanceVideoConfig(config: AiConfig | Pick<AiConfig, "model" | "videoModel" | "apiFormat">) {
     const requestConfig = "channels" in config ? resolveModelRequestConfig(config, config.model || config.videoModel) : config;
-    return requestConfig.apiFormat === "ark";
+    return requestConfig.apiFormat === "ark" || isHuiMengSeedanceConfig(requestConfig) || isJuKeSeedanceConfig(requestConfig);
+}
+
+export function isHuiMengSeedanceConfig(config: Pick<AiConfig, "model" | "videoModel" | "apiFormat">) {
+    return modelOptionName(config.model || config.videoModel).startsWith("huimeng-seedance-2.0");
+}
+
+export function isJuKeSeedanceConfig(config: Pick<AiConfig, "model" | "videoModel" | "apiFormat">) {
+    return modelOptionName(config.model || config.videoModel) === "seedance-2.5-stable";
 }
 
 export function normalizeSeedanceResolution(value: string) {
@@ -79,6 +88,11 @@ export function normalizeSeedanceDuration(value: string) {
     if (String(value).trim() === "-1") return -1;
     const seconds = Math.floor(Number(value) || 5);
     return Math.max(4, Math.min(15, seconds));
+}
+
+export function normalizeJuKeSeedanceDuration(value: string) {
+    const seconds = Math.floor(Number(value) || 5);
+    return Math.max(4, Math.min(30, seconds));
 }
 
 export function normalizeSeedanceRatio(value: string) {

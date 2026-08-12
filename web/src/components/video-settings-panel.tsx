@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 
 import i18n from "@/i18n";
 import { ImageSettingsTheme } from "@/components/image-settings-panel";
-import { boolConfig, isSeedanceVideoConfig, normalizeSeedanceDuration, normalizeSeedanceRatio, normalizeSeedanceResolution, seedanceDurationOptions, seedancePixelLabel, seedanceRatioOptions, seedanceResolutionOptions } from "@/lib/seedance-video";
+import { boolConfig, isHuiMengSeedanceConfig, isJuKeSeedanceConfig, isSeedanceVideoConfig, jukeSeedanceDurationOptions, normalizeJuKeSeedanceDuration, normalizeSeedanceDuration, normalizeSeedanceRatio, normalizeSeedanceResolution, seedanceDurationOptions, seedancePixelLabel, seedanceRatioOptions, seedanceResolutionOptions } from "@/lib/seedance-video";
 import { type CanvasTheme } from "@/lib/canvas-theme";
 import { type AiConfig } from "@/stores/use-config-store";
 
@@ -112,9 +112,16 @@ function SeedanceVideoSettingsPanel({ config, onConfigChange, theme, showTitle, 
     const { t } = useTranslation();
     const resolution = normalizeSeedanceResolution(config.vquality);
     const ratio = normalizeSeedanceRatio(config.size);
-    const duration = normalizeSeedanceDuration(config.videoSeconds);
+    const duration = isJuKeSeedanceConfig(config) ? normalizeJuKeSeedanceDuration(config.videoSeconds) : normalizeSeedanceDuration(config.videoSeconds);
     const generateAudio = boolConfig(config.videoGenerateAudio, true);
     const watermark = boolConfig(config.videoWatermark, false);
+    const isHuiMeng = isHuiMengSeedanceConfig(config);
+    const isJuKe = isJuKeSeedanceConfig(config);
+    const resolutions = isHuiMeng ? seedanceResolutionOptions.filter((item) => item.value !== "480p") : isJuKe ? seedanceResolutionOptions.filter((item) => item.value !== "1080p") : seedanceResolutionOptions;
+    const ratios = isJuKe ? seedanceRatioOptions.filter((item) => item.value !== "adaptive") : seedanceRatioOptions;
+    const durationOptions = isJuKe ? jukeSeedanceDurationOptions : isHuiMeng ? seedanceDurationOptions.filter((value) => value !== -1) : seedanceDurationOptions;
+    const durationMin = isHuiMeng || isJuKe ? 4 : -1;
+    const durationMax = isJuKe ? 30 : 15;
 
     return (
         <ImageSettingsTheme theme={theme}>
@@ -122,7 +129,7 @@ function SeedanceVideoSettingsPanel({ config, onConfigChange, theme, showTitle, 
                 {showTitle ? <div className="text-lg font-semibold">{t("settingsPanels.video.title")}</div> : null}
                 <SettingGroup title={t("settingsPanels.video.resolution")} color={theme.node.muted}>
                     <div className="grid grid-cols-3 gap-2.5">
-                        {seedanceResolutionOptions.map((item) => (
+                        {resolutions.map((item) => (
                             <OptionPill key={item.value} selected={resolution === item.value} theme={theme} onClick={() => onConfigChange("vquality", item.value)}>
                                 {item.label}
                             </OptionPill>
@@ -131,7 +138,7 @@ function SeedanceVideoSettingsPanel({ config, onConfigChange, theme, showTitle, 
                 </SettingGroup>
                 <SettingGroup title={t("settingsPanels.video.ratio")} color={theme.node.muted}>
                     <div className="grid grid-cols-3 gap-2.5">
-                        {seedanceRatioOptions.map((item) => (
+                        {ratios.map((item) => (
                             <button
                                 key={item.value}
                                 type="button"
@@ -149,13 +156,13 @@ function SeedanceVideoSettingsPanel({ config, onConfigChange, theme, showTitle, 
                 </SettingGroup>
                 <SettingGroup title={t("settingsPanels.video.duration")} color={theme.node.muted}>
                     <div className="grid grid-cols-4 gap-2.5">
-                        {seedanceDurationOptions.map((value) => (
+                        {durationOptions.map((value) => (
                             <OptionPill key={value} selected={duration === value} theme={theme} onClick={() => onConfigChange("videoSeconds", String(value))}>
                                 {value === -1 ? t("settingsPanels.video.smart") : `${value}s`}
                             </OptionPill>
                         ))}
                     </div>
-                    <NumberInput value={String(duration)} min={-1} max={15} theme={theme} onChange={(value) => onConfigChange("videoSeconds", value)} />
+                    <NumberInput value={String(duration)} min={durationMin} max={durationMax} theme={theme} onChange={(value) => onConfigChange("videoSeconds", value)} />
                 </SettingGroup>
                 <SettingGroup title={t("settingsPanels.video.output")} color={theme.node.muted}>
                     <div className="grid gap-2 rounded-xl border p-2.5" style={{ borderColor: theme.node.stroke }}>

@@ -17,9 +17,12 @@ const imageModels = [
 ] as const;
 
 const videoModels = [
+    { name: "huimeng-seedance-2.0", displayName: "绘梦 Seedance 2.0" },
+    { name: "seedance-2.5-stable", displayName: "Seedance 2.5 稳定渠道" },
     { name: "sd-2.5-720p不卡脸(按秒)", displayName: "SD2.5 720p per second" },
     { name: "sd-2.5-480p不卡脸(按秒)", displayName: "SD2.5 480p per second" },
     { name: "sd-2.5-720p不卡脸(按次)", displayName: "SD2.5 720p per request (15 seconds)" },
+    { name: "sd-2.5-轮换渠道（按次）", displayName: "SD2.5 720p 惊喜特价渠道" },
     { name: "sd-720满血-不卡脸（按次）", displayName: "SD2.0 720p per request (15 seconds)" },
 ] as const;
 
@@ -95,7 +98,7 @@ const firstTaskId = (state) => [
 const taskStatus = (state) => String(state?.status || state?.state || state?.data?.status || state?.data?.state || state?.result?.status || state?.result?.state || state?.output?.status || state?.output?.state || state?.data?.result?.status || state?.data?.result?.state || state?.data?.output?.status || state?.data?.output?.state || "").toLowerCase();
 const taskError = (state) => [state?.error?.message, state?.error, state?.error_message, state?.message, state?.msg, state?.data?.error?.message, state?.data?.error, state?.data?.error_message, state?.data?.message, state?.result?.error?.message, state?.result?.error, state?.output?.error?.message, state?.output?.error, state?.data?.result?.error?.message, state?.data?.result?.error, state?.data?.output?.error?.message, state?.data?.output?.error].find((value) => typeof value === "string" && value.trim()) || "AICopy 视频生成失败";
 let refs = images || []; let videos = params.videoReferences || []; let audios = params.audioReferences || [];
-const requiresPublicMedia = model.startsWith("sd") || model.startsWith("happyhorse") || model.includes("惊喜渠道") || model.includes("omni-fast");
+const requiresPublicMedia = model.startsWith("sd") || model.startsWith("huimeng-") || model === "seedance-2.5-stable" || model.startsWith("happyhorse") || model.includes("惊喜渠道") || model.includes("omni-fast");
 if (requiresPublicMedia) {
   refs = await Promise.all(refs.map(uploadPublicMedia));
   videos = await Promise.all(videos.map(uploadPublicMedia));
@@ -117,6 +120,36 @@ const first = refs[0]; const last = refs[1];
 const isMultiRoute = refs.length > 1 || videos.length || audios.length || model.includes("h3") || model.includes("惊喜渠道") && (refs.length > 1 || videos.length || audios.length);
 let path = isMultiRoute && (model.includes("h3") || model.includes("惊喜渠道")) ? "/v1/video/generations" : "/v1/videos";
 let body = { model, prompt, duration: Number(seconds), seconds, aspect_ratio: ratio, resolution };
+if (model === "huimeng-seedance-2.0") {
+  const duration = Math.min(15, Math.max(4, Number(seconds) || 5));
+  const isFrames = refs.length === 2 && !videos.length && !audios.length;
+  body = {
+    model,
+    prompt,
+    duration,
+    seconds: String(duration),
+    aspect_ratio: ratio,
+    resolution: resolution === "1080p" ? "1080p" : "720p",
+    images: refs,
+    videos,
+    audios,
+    generate_audio: params.generateAudio !== false,
+    scene_optimize: "realistic",
+    metadata: {
+      ratio,
+      resolution: resolution === "1080p" ? "1080p" : "720p",
+      generate_audio: params.generateAudio !== false,
+      scene_optimize: "realistic",
+      modeType: isFrames ? "frames2video" : refs.length ? "image2video" : "text2video",
+    },
+  };
+}
+else if (model === "seedance-2.5-stable") {
+  const allowedDurations = [4, 5, 6, 8, 10, 12, 15, 20, 25, 29, 30];
+  const duration = Number(seconds);
+  if (!allowedDurations.includes(duration)) throw new Error("Seedance 2.5 稳定渠道只支持 4、5、6、8、10、12、15、20、25、29 或 30 秒");
+  body = { model, prompt, duration, aspect_ratio: ratio, resolution: resolution === "480p" ? "480p" : "720p", ...(refs.length ? { images: refs } : {}), ...(videos.length ? { videos } : {}), ...(audios.length ? { audios } : {}) };
+}
 if (model === "grok-1.0-临时接口" || model === "grok-1.5-fast-临时接口") {
   const form = new FormData(); form.set("model", model); form.set("prompt", prompt); form.set("size", ratio === "9:16" ? "720x1280" : "1280x720"); form.set("seconds", seconds); form.set("resolution_name", resolution);
   for (const url of refs) form.append("input_reference[]", await (await fetch(url)).blob(), "reference.png");
