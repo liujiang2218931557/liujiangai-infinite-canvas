@@ -91,3 +91,16 @@
   The production New API async task poller/upstream adaptor remains P0 and is
   intentionally not papered over by a frontend retry or duplicate billable
   request.
+
+### Production polling reconciliation
+
+- The separately licensed New API deployment was subsequently repaired and
+  redeployed. The external upstream's status GET had a known token-model 403
+  defect; the narrow production fallback queried its authenticated content
+  endpoint and converted its documented task state without creating any new
+  paid request.
+- The historical task moved from stale `in progress`/30% to truthful
+  `FAILURE`/100%. This validates canvas failure surfacing and prevents false
+  progress, but it cannot validate a successful video preview because the
+  upstream task itself had failed. The next live check needs an existing
+  successful task or explicit authorization for a limited sandbox task.

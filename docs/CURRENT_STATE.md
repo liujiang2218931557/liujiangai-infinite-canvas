@@ -36,14 +36,15 @@ Last reviewed: 2026-08-12.
 - [x] P0: Published reviewed source tree to `origin/main` at commit `eb83077`.
 - [ ] P1: End-to-end browser validation with a newly created ordinary New API user token. Blocker: the token must be entered by its owner and must not be recorded in Git, terminal output, or screenshots.
 - [ ] P1: Controlled paid image/video generation validation. Blocker: user authorization and a deliberately limited test balance.
-- [ ] P0: Reconcile the New API task state with the AICopy task that was observed as completed in the upstream dashboard. Blocker: the two task IDs have not yet been correlated. On 2026-08-12 the New API task log held four canvas video tasks, all terminally failed as `upstream returned error`; its drawing and general logs both contained zero image records. No successful backend return or canvas writeback has yet been observed.
-- [ ] P0: Observe the already-running user-submitted video task through a
-  terminal New API state. It was confirmed as `in progress` at 30%, so the
-  earlier canvas error was a client polling defect rather than an immediate
-  New API failure. A read-only audit after the client repair still found it at
-  30%, so the production New API async poller or its upstream terminal-state
-  mapping must be investigated. Do not submit a duplicate request merely to
-  check it.
+- [x] P0: New API production task polling no longer leaves the historical
+  task at fake `in progress`/30%. On 2026-08-12 the deployment repository
+  added a narrow external-upstream compatibility fallback: the upstream content
+  endpoint reported that task as `FAILURE`, and New API recorded the truthful
+  `FAILURE`/100% state. No duplicate paid request was made.
+- [ ] P0: Observe an existing successful task through the production New API
+  terminal state and canvas preview/writeback. Blocker: the audited historical
+  task was truly failed, so it cannot validate success media. Do not submit a
+  duplicate paid request merely to check it.
 
 ## Not Started
 
@@ -64,4 +65,4 @@ Last reviewed: 2026-08-12.
 | Canvas persistence | Browser local storage / IndexedDB; optional user-configured WebDAV |
 | Server cache | None in the static canvas; browser and upstream behavior are outside this repository |
 | Result writeback | Canvas stores successful image results as image-node metadata and successful video results as video-node metadata after URL/blob retrieval; this code path is built and contract-tested but has not been validated against a successful live New API task |
-| Video state diagnosis | At 2026-08-12 18:01 China time, task `task_FMBANjGX9tSLsfeSmxLVPqQY11CqiesB` remained `in progress` at 30%. Four prior canvas video tasks were terminal `upstream returned error`. This is production New API/upstream work, not evidence that a successful video failed to write back. |
+| Video state diagnosis | The historical task that was at `in progress`/30% was checked against the upstream authenticated content route by the fixed New API poller and correctly became `FAILURE`/100%. The canvas now awaits an existing successful task to validate live media preview/writeback; no paid retry was made. |

@@ -2,41 +2,24 @@
 
 ## P0
 
-- [ ] Reconcile and repair the existing video task failures before treating video writeback as live.
+- [x] Reconcile the historical video task failure in New API production.
   - Files: New API production image/relay patch outside this repository;
     `web/src/services/api/aicopy.ts` and `web/src/services/api/video.ts` are
     the client-side request/poll reference.
-  - Evidence: on 2026-08-12, New API listed four failed canvas video tasks with
-    `upstream returned error`; upstream success and New API task IDs were not
-    correlated. New API had no image records in drawing or general logs.
-  - Dependency: correlate one existing upstream task with its New API public
-    task ID, or explicitly authorize a capped test balance for one new task.
-  - Acceptance: New API task transitions to SUCCESS, the authenticated content
-    route returns a playable MP4, and the canvas video node reaches SUCCESS
-    with previewable metadata.
+  - Evidence: production New API's upstream polling fallback used the existing
+    task's authenticated content endpoint and recorded its real terminal
+    `FAILURE`/100% state. No new paid video request was made.
 
-- [ ] Observe the current in-progress task using the repaired canvas poller.
+- [ ] Observe an existing successful task using the repaired canvas poller.
   - Files: `web/src/services/api/model-plugin.ts` and
     `web/src/services/api/aicopy.ts`; New API production async task worker and
     video task adaptor are outside this repository.
-  - Dependency: the task already submitted by the user must reach a terminal
-    New API status; do not submit a duplicate request. Read-only audit at
-    2026-08-12 18:01 found task `task_FMBANjGX9tSLsfeSmxLVPqQY11CqiesB` still
-    at `in progress`/30%.
+  - Dependency: a task already known successful must be available to the user;
+    do not submit a duplicate paid task just for verification.
   - Acceptance: New API transitions to a terminal state. On success the
     script downloads authenticated video content and writes it to a previewable
     video node; on failure it surfaces New API's failure message rather than
     the misleading `scriptNoVideo` error.
-
-- [ ] Repair New API production task polling if the 30% task does not reach a terminal state.
-  - Files: New API deployment only. Inspect its task-polling configuration,
-    async worker logs, video router/controller, and the upstream adaptor status
-    mapping. Keep this work in a separately licensed New API checkout; do not
-    copy AGPL code into this MIT repository.
-  - Dependency: administrative server access and a non-sensitive task ID from
-    the New API log. Do not paste server credentials or upstream keys into Git.
-  - Acceptance: a known task moves from queued/processing to a mapped success
-    or failure state, with an actionable reason if it fails.
 
 ## P1
 

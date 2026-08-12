@@ -24,7 +24,11 @@
 
 ## Work Not Finished
 
-- P0: New API production task polling/upstream state mapping. On 2026-08-12 18:01 China time, task `task_FMBANjGX9tSLsfeSmxLVPqQY11CqiesB` was still `in progress` at 30%; four earlier canvas tasks were terminal `upstream returned error`. This cannot be repaired in the static canvas repository alone.
+- P0: New API production polling compatibility is deployed in the separately
+  licensed deployment repository. The historical task previously stuck at 30%
+  was reconciled as a real upstream `FAILURE`, not a canvas polling failure.
+  The remaining P0 is successful-task preview/writeback with an existing
+  successful task or explicitly authorized sandbox request.
 - P1: User-owned New API Token browser smoke test for `/v1/models`; no actual Token is available to this repository or handoff.
 - P1: User-authorized limited paid generation test. Do not create paid requests merely as an engineering check.
 - P2: CORS narrowing, SCF abuse controls, and bundle size improvements.
@@ -108,7 +112,9 @@ Not verified:
 
 1. Read this file, then `docs/CURRENT_STATE.md`, `README.md`, and `docs/RESULT_WRITEBACK.md`.
 2. Run `git pull`, inspect `git status -sb`, install dependencies with `npm.cmd ci` in `web/`, and run `npm.cmd run verify:aicopy`, `npm.cmd run typecheck`, and `npm.cmd run build`.
-3. Start with P0 in `docs/TODO.md`: inspect New API production task polling and the upstream adaptor without reintroducing old endpoints or issuing duplicate billable jobs.
+3. Start with P0 in `docs/TODO.md`: validate a successful existing task's New
+   API content response and canvas writeback without reintroducing old
+   endpoints or issuing duplicate billable jobs.
 4. Treat the code and latest commit as authoritative if documentation conflicts, then update the conflicting document in the same change.
 5. Keep all real credentials outside Git and do not run paid tests without user authorization.
 
