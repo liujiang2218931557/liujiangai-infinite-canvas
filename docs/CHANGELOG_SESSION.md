@@ -64,3 +64,30 @@
   preserves synchronous scripts and correctly treats asynchronous `null` as
   pending. Typecheck and production build passed after the change. The local
   Vite server was restarted; the already-created task must not be duplicated.
+
+### Image/video result contract hardening
+
+- Cross-checked the exposed image and video contracts against the user's local
+  interface documents and the official New API public routing design. The
+  canvas continues to use only `https://liujiangai.cn/v1`.
+- Added an offline adapter contract suite at
+  `web/scripts/verify-aicopy-adapter.mjs`, callable with
+  `npm.cmd run verify:aicopy`. It makes no network request and covers the
+  three public image models plus four public video models, including reference
+  image edits, video pending states, all configured terminal states, nested
+  task/result envelopes, and authenticated video content downloads.
+- Hardened image parsing: result URLs are normalized to the fixed HTTPS New
+  API origin, Base64 image payloads are retained for local image-node storage,
+  and the Chat/SSE model will not issue a second potentially billable image
+  request when the first stream omits an image URL.
+- Hardened video writeback: result polling accepts common nested task ID,
+  status, and URL envelopes. Completed protected New API content is downloaded
+  with the current user's Bearer Token, verified as media, saved to browser
+  storage, and then written to the canvas preview node. A protected content
+  failure is shown as an error instead of a false-success unplayable preview.
+- Read-only New API audit at 2026-08-12 18:01 found the already-submitted task
+  `task_FMBANjGX9tSLsfeSmxLVPqQY11CqiesB` still `in progress` at 30%; four
+  older canvas tasks were already terminal with `upstream returned error`.
+  The production New API async task poller/upstream adaptor remains P0 and is
+  intentionally not papered over by a frontend retry or duplicate billable
+  request.

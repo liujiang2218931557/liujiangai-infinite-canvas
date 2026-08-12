@@ -86,13 +86,14 @@ const firstUrl = (state) => [
   state?.data?.final_url, ...asList(state?.data?.final_urls),
   state?.data?.content?.video_url, state?.data?.content?.result_url, state?.data?.content?.url,
   state?.data?.result?.video_url, state?.data?.result?.result_url, state?.data?.result?.url, state?.data?.result?.final_url, ...asList(state?.data?.result?.final_urls),
+  state?.data?.output?.video_url, state?.data?.output?.result_url, state?.data?.output?.url, state?.data?.output?.final_url, ...asList(state?.data?.output?.final_urls),
 ].find((value) => typeof value === "string" && value.trim());
 const firstTaskId = (state) => [
   state?.id, state?.task_id, state?.taskId, state?.request_id, state?.requestId, state?.video_id, state?.videoId, state?.job_id, state?.jobId,
   state?.data?.id, state?.data?.task_id, state?.data?.taskId, state?.data?.request_id, state?.data?.requestId, state?.data?.video_id, state?.data?.videoId, state?.data?.job_id, state?.data?.jobId,
 ].find((value) => typeof value === "string" && value.trim());
-const taskStatus = (state) => String(state?.status || state?.state || state?.data?.status || state?.data?.state || state?.result?.status || state?.result?.state || state?.output?.status || state?.output?.state || state?.data?.result?.status || state?.data?.result?.state || "").toLowerCase();
-const taskError = (state) => [state?.error?.message, state?.error, state?.error_message, state?.message, state?.msg, state?.data?.error?.message, state?.data?.error, state?.data?.error_message, state?.data?.message, state?.result?.error?.message, state?.result?.error, state?.output?.error?.message, state?.output?.error].find((value) => typeof value === "string" && value.trim()) || "AICopy 视频生成失败";
+const taskStatus = (state) => String(state?.status || state?.state || state?.data?.status || state?.data?.state || state?.result?.status || state?.result?.state || state?.output?.status || state?.output?.state || state?.data?.result?.status || state?.data?.result?.state || state?.data?.output?.status || state?.data?.output?.state || "").toLowerCase();
+const taskError = (state) => [state?.error?.message, state?.error, state?.error_message, state?.message, state?.msg, state?.data?.error?.message, state?.data?.error, state?.data?.error_message, state?.data?.message, state?.result?.error?.message, state?.result?.error, state?.output?.error?.message, state?.output?.error, state?.data?.result?.error?.message, state?.data?.result?.error, state?.data?.output?.error?.message, state?.data?.output?.error].find((value) => typeof value === "string" && value.trim()) || "AICopy 视频生成失败";
 let refs = images || []; let videos = params.videoReferences || []; let audios = params.audioReferences || [];
 const requiresPublicMedia = model.startsWith("sd") || model.startsWith("happyhorse") || model.includes("惊喜渠道") || model.includes("omni-fast");
 if (requiresPublicMedia) {

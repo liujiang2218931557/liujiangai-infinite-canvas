@@ -71,7 +71,7 @@ AI API Key、Base URL、画布、素材和生成记录默认保存在浏览器�
 
 ### 六酱 New API
 
-本分支内置的“六酱 New API”渠道固定连接 `https://liujiangai.cn/v1`。用户应在 [New API](https://liujiangai.cn) 自己注册、充值并创建普通 API Key，再在画布设置中粘贴自己的 Key。画布不会保存管理员 Key、上游渠道 Key 或服务器凭据；素材网关上传令牌只在当前会话保留。完整边界、接口对照与 Windows 从零复现见 [New API 集成说明](docs/NEW_API_CANVAS_INTEGRATION.md) 和 [Windows 启动说明](docs/WINDOWS_REPRODUCTION.md)。
+本分支内置的“六酱 New API”渠道固定连接 `https://liujiangai.cn/v1`。用户应在 [New API](https://liujiangai.cn) 自己注册、充值并创建普通 API Key，再在画布设置中粘贴自己的 Key。画布不会保存管理员 Key、上游渠道 Key 或服务器凭据；素材网关上传令牌只在当前会话保留。完整边界、接口对照与 Windows 从零复现见 [New API 集成说明](docs/NEW_API_CANVAS_INTEGRATION.md)、[视频/图片回写验收](docs/RESULT_WRITEBACK.md) 和 [Windows 启动说明](docs/WINDOWS_REPRODUCTION.md)。
 
 ### 本地开发
 

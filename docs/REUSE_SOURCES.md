@@ -8,6 +8,12 @@
 - License: AGPL-3.0.
 - Reused code: none. This repository contains no copied New API source files.
 - Adaptation: the canvas uses the documented/public relay contract only: a user-created API Key calls `https://liujiangai.cn/v1` with `Authorization: Bearer <key>`.
+- Relevant public contracts checked in this session: `/v1/videos`,
+  `/v1/video/generations`, task query routes, and
+  `/v1/videos/{task_id}/content`. The frontend now recognizes the common
+  terminal status aliases described by the associated user-provided interface
+  documents. Production New API source/deployment changes remain outside this
+  MIT repository because New API is AGPL-3.0.
 
 ## Infinite Canvas upstream
 

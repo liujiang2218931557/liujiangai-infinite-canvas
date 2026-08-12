@@ -30,6 +30,40 @@
 3. Record the model name, timestamp, status, and New API request identifier without copying user tokens.
 4. Retry only according to the upstream's idempotency and billing rules; video creation may not be safe to blindly retry.
 
+## Video Stays at 30% or Never Writes Back
+
+1. Open New API's task log and filter by the public task ID. Record the model,
+   status, progress, channel ID, time, and visible error only. Do not copy a
+   Token, upstream Key, Cookie, password, or request authorization header.
+2. If New API remains `in progress` with a fixed progress value, the canvas is
+   correctly continuing to poll. Inspect the New API deployment's async task
+   polling setting and service logs, then compare the upstream response status
+   with the New API video task adaptor's terminal-status mapping.
+3. If New API says `failed` with `upstream returned error`, fix the selected
+   New API channel/upstream request before changing the canvas. A browser
+   change cannot turn an upstream failure into a playable video.
+4. If New API is terminal-success but the canvas reports a download failure,
+   manually check the authenticated `GET /v1/videos/{task_id}/content?variant=video`
+   route. It must return a video body, not an HTML/JSON error. The canvas falls
+   back to `/content` only when the variant endpoint fails.
+5. Only after a terminal success plus playable content should the video node
+   be marked successful. The canvas stores the returned Blob in browser media
+   storage and then rewrites the node metadata for preview.
+
+## Image Does Not Return to the Canvas
+
+1. In New API's drawing/general logs, confirm the image request reached the
+   expected model and inspect the visible error/status.
+2. The exposed models are synchronous; their success response must contain a
+   nonempty `data[]` entry with `url` or `b64_json`. There is no image task
+   polling route in this integration.
+3. For `firefly-gpt-image-*`, New API must emit an image URL in the SSE Chat
+   response. The canvas deliberately does not send a second non-streaming
+   request, because that could create and bill a duplicate image.
+4. For `gpt-image-2` and `Adobe-gpt-image-2`, use `/v1/images/generations`
+   for text-to-image and `/v1/images/edits` for reference-image editing. A
+   completed response is saved to browser storage before node writeback.
+
 ## Rollback
 
 1. For browser changes, revert the relevant Git commit and rebuild the static web bundle.

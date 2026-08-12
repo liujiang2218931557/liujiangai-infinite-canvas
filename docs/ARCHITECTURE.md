@@ -24,6 +24,27 @@ Browser <── temporary HTTPS URL ──────────────�
 Browser ── reference URL in model request ──> New API `/v1` relay
 ```
 
+## Image and Video Completion Rules
+
+- The three exposed image models are synchronous. The canvas accepts returned
+  `data[].url` (including a New API-relative URL) or `data[].b64_json`, saves
+  the image to browser storage, and writes image metadata back to the source
+  canvas node.
+- Video generation is asynchronous. The canvas stores a loading video node,
+  then polls the same authenticated New API route every five seconds.
+- Pending statuses are `queued`, `pending`, `processing`, `in_progress`, and
+  `running`. Successful statuses are `completed`, `succeeded`, `success`,
+  `done`, and `finished`. Failure statuses include `failed`, `failure`,
+  `error`, `cancelled`, `canceled`, `expired`, `rejected`, `blocked`,
+  `aborted`, `timeout`, and `timed_out`.
+- A success response may contain a direct result URL. When it exposes a
+  protected New API `/v1/videos/{task_id}/content` URL or no URL at all, the
+  canvas downloads the content with the current user's Bearer Token, validates
+  that it is media rather than an HTML/JSON error, stores it locally, and then
+  writes the playable video metadata to the canvas. A protected content
+  download failure is intentionally shown as an error, not as a false-success
+  unplayable preview.
+
 ## Boundaries
 
 - The canvas does not implement accounts, payment, credits, price calculations, upstream routing, or persistent server-side caching.

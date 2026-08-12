@@ -217,7 +217,7 @@ for (const model of ["sd-2.5-720p不卡脸(按次)", "sd-720满血-不卡脸（�
             calls.push(request);
             if (request.method === "post") return { data: { request_id: "task-nested" } };
             if (request.url.endsWith("/content")) return new Blob(["mp4"], { type: "video/mp4" });
-            return { data: { state: "done", final_urls: ["/v1/videos/task-nested/content"] } };
+            return { data: { output: { state: "done", final_urls: ["/v1/videos/task-nested/content"] } } };
         },
     });
     assert.ok(result.blob instanceof Blob, "nested task IDs and protected result URLs must resolve to a blob");

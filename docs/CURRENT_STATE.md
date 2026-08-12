@@ -20,6 +20,16 @@ Last reviewed: 2026-08-12.
 - [x] The model-script polling helper awaits asynchronous result extractors.
   This prevents an in-progress New API video task from being mistaken for an
   empty final result while the script fetches protected video content.
+- [x] The built-in image adapter accepts the live public image model contracts:
+  Chat/SSE URL output for `firefly-gpt-image-*`, and URL or Base64 image output
+  for `gpt-image-2` and `Adobe-gpt-image-2`.
+- [x] The built-in video adapter recognizes common nested task IDs/result URLs,
+  five success states, eleven terminal failure states, and protected New API
+  content downloads. It saves an authenticated Blob before canvas preview
+  writeback instead of returning an unplayable protected URL.
+- [x] The offline `npm.cmd run verify:aicopy` contract suite covers all seven
+  public models, image reference routes, video pending/success/failure states,
+  protected content downloads, and Blob handoff. It never contacts New API.
 
 ## In Progress
 
@@ -30,7 +40,10 @@ Last reviewed: 2026-08-12.
 - [ ] P0: Observe the already-running user-submitted video task through a
   terminal New API state. It was confirmed as `in progress` at 30%, so the
   earlier canvas error was a client polling defect rather than an immediate
-  New API failure. Do not submit a duplicate request merely to check it.
+  New API failure. A read-only audit after the client repair still found it at
+  30%, so the production New API async poller or its upstream terminal-state
+  mapping must be investigated. Do not submit a duplicate request merely to
+  check it.
 
 ## Not Started
 
@@ -50,4 +63,5 @@ Last reviewed: 2026-08-12.
 | Public reference media | Optional Tencent Cloud Function + private COS gateway, returning temporary HTTPS URLs |
 | Canvas persistence | Browser local storage / IndexedDB; optional user-configured WebDAV |
 | Server cache | None in the static canvas; browser and upstream behavior are outside this repository |
-| Result writeback | Canvas stores successful image results as image-node metadata and successful video results as video-node metadata after URL/blob retrieval; this code path is built but has not been validated against a successful live New API task |
+| Result writeback | Canvas stores successful image results as image-node metadata and successful video results as video-node metadata after URL/blob retrieval; this code path is built and contract-tested but has not been validated against a successful live New API task |
+| Video state diagnosis | At 2026-08-12 18:01 China time, task `task_FMBANjGX9tSLsfeSmxLVPqQY11CqiesB` remained `in progress` at 30%. Four prior canvas video tasks were terminal `upstream returned error`. This is production New API/upstream work, not evidence that a successful video failed to write back. |
