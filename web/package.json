@@ -8,6 +8,7 @@
         "build": "vite build",
         "typecheck": "tsc --noEmit",
         "start": "vite preview --host 0.0.0.0 --port 3000",
+        "verify:aicopy": "node scripts/verify-aicopy-adapter.mjs",
         "format": "prettier --write .",
         "format:check": "prettier --check ."
     },

@@ -11,7 +11,23 @@ import { runModelPlugin } from "./model-plugin";
 import type { ReferenceImage } from "@/types/image";
 import type { ReferenceAudio, ReferenceVideo } from "@/types/media";
 
-type VideoResponse = { id: string; status?: string; error?: { message?: string }; url?: string; result_url?: string; video_url?: string; content?: { video_url?: string; url?: string } | null };
+type VideoResponse = {
+    id: string;
+    status?: string;
+    state?: string;
+    error?: { message?: string } | string;
+    error_message?: string;
+    message?: string;
+    msg?: string;
+    url?: string;
+    result_url?: string;
+    video_url?: string;
+    final_url?: string;
+    final_urls?: string[];
+    content?: { video_url?: string; result_url?: string; url?: string } | null;
+    result?: { status?: string; state?: string; video_url?: string; result_url?: string; url?: string; final_url?: string; final_urls?: string[]; error?: { message?: string } | string } | null;
+    output?: { status?: string; state?: string; video_url?: string; result_url?: string; url?: string; final_url?: string; final_urls?: string[]; error?: { message?: string } | string } | null;
+};
 type ApiVideoResponse = VideoResponse | { code?: number | string; data?: VideoResponse | null; msg?: string; message?: string; error?: { message?: string } };
 type SeedanceTask = {
     id: string;
@@ -83,14 +99,23 @@ export async function pollVideoGenerationTask(config: AiConfig, task: VideoGener
     return task.provider === "seedance" ? pollSeedanceTask(requestConfig, task, options) : pollOpenAIVideoTask(requestConfig, task, options);
 }
 
-async function createPluginVideoTask(config: AiConfig, model: string, script: string, prompt: string, references: ReferenceImage[], videoReferences: ReferenceVideo[], audioReferences: ReferenceAudio[], options?: RequestOptions): Promise<VideoGenerationTask> {
+async function createPluginVideoTask(
+    config: AiConfig,
+    model: string,
+    script: string,
+    prompt: string,
+    references: ReferenceImage[],
+    videoReferences: ReferenceVideo[],
+    audioReferences: ReferenceAudio[],
+    options?: RequestOptions,
+): Promise<VideoGenerationTask> {
     if (!config.baseUrl.trim()) throw new Error(apiText("baseUrlRequired"));
     if (!config.apiKey.trim()) throw new Error(apiText("apiKeyRequired"));
     assertSeedance25PromptLength(model, prompt);
-    const refs = await Promise.all(references.map(async (image) => /^https?:\/\//i.test(image.url || "") ? image.url! : imageToDataUrl(image)));
+    const refs = await Promise.all(references.map(async (image) => (/^https?:\/\//i.test(image.url || "") ? image.url! : imageToDataUrl(image))));
     const videos = await Promise.all(videoReferences.map(resolvePluginMediaUrl));
     const audios = await Promise.all(audioReferences.map(resolvePluginMediaUrl));
-    const result = videoPluginResult(
+    const result = await videoPluginResult(
         await runModelPlugin({
             capability: "video",
             script,
@@ -122,12 +147,12 @@ async function resolvePluginMediaUrl(media: ReferenceVideo | ReferenceAudio) {
     return blobToDataUrl(blob);
 }
 
-function videoPluginResult(result: unknown): VideoGenerationResult {
-    if (result instanceof Blob) return { blob: result };
+async function videoPluginResult(result: unknown): Promise<VideoGenerationResult> {
+    if (result instanceof Blob) return { blob: await assertVideoBlob(result) };
     if (typeof result === "string") return { url: result, mimeType: "video/mp4" };
     if (result && typeof result === "object") {
         const record = result as Record<string, unknown>;
-        if (record.blob instanceof Blob) return { blob: record.blob };
+        if (record.blob instanceof Blob) return { blob: await assertVideoBlob(record.blob) };
         const url = [record.url, record.video_url, record.result_url].find((value) => typeof value === "string" && value) as string | undefined;
         if (url) return { url, mimeType: "video/mp4" };
     }
@@ -169,13 +194,10 @@ async function pollOpenAIVideoTask(config: AiConfig, task: VideoGenerationTask, 
     try {
         const video = unwrapVideoResponse((await axios.get<ApiVideoResponse>(aiApiUrl(config, `/videos/${task.id}`), { headers: aiHeaders(config), signal: options?.signal })).data);
         const url = videoResultUrl(video);
-        if (url) return { status: "completed", result: await videoResultFromUrl(url, options) };
-        if (video.status === "completed") {
-            const content = await axios.get<Blob>(aiApiUrl(config, `/videos/${task.id}/content`), { headers: aiHeaders(config), responseType: "blob", signal: options?.signal });
-            await assertVideoBlob(content.data);
-            return { status: "completed", result: { blob: content.data } };
-        }
-        if (video.status === "failed" || video.status === "cancelled") return { status: "failed", error: readApiErrorMessage(video.error?.message) || apiText("videoGenerationFailed") };
+        if (url) return { status: "completed", result: await videoResultFromUrl(config, url, options) };
+        const status = videoTaskStatus(video);
+        if (VIDEO_SUCCESS_STATUSES.has(status)) return { status: "completed", result: await downloadVideoContent(config, task.id, options) };
+        if (VIDEO_FAILURE_STATUSES.has(status)) return { status: "failed", error: videoTaskError(video) || apiText("videoGenerationFailed") };
         return { status: "pending" };
     } catch (error) {
         throw new Error(readAxiosError(error, apiText("videoTaskQueryFailed")));
@@ -213,9 +235,10 @@ async function pollSeedanceTask(config: AiConfig, task: VideoGenerationTask, opt
     try {
         const state = unwrapSeedanceTask((await axios.get<ApiEnvelope<SeedanceTask>>(seedanceApiUrl(config, task.id), { headers: aiHeaders(config), signal: options?.signal })).data);
         const url = videoResultUrl(state);
-        if (url) return { status: "completed", result: await videoResultFromUrl(url, options) };
-        if (state.status === "succeeded" || state.status === "completed") return { status: "failed", error: apiText("seedanceNoVideoUrl") };
-        if (state.status === "failed" || state.status === "cancelled" || state.status === "expired") return { status: "failed", error: readApiErrorMessage(state.error?.message) || apiText(state.status === "expired" ? "seedanceVideoTimeout" : "seedanceVideoFailed") };
+        if (url) return { status: "completed", result: await videoResultFromUrl(config, url, options) };
+        const status = videoTaskStatus(state);
+        if (VIDEO_SUCCESS_STATUSES.has(status)) return { status: "failed", error: apiText("seedanceNoVideoUrl") };
+        if (VIDEO_FAILURE_STATUSES.has(status)) return { status: "failed", error: videoTaskError(state) || apiText(status === "expired" ? "seedanceVideoTimeout" : "seedanceVideoFailed") };
         return { status: "pending" };
     } catch (error) {
         throw new Error(readAxiosError(error, apiText("seedanceTaskQueryFailed")));
@@ -290,14 +313,20 @@ async function resolveSeedanceAudioUrl(audio: ReferenceAudio) {
     return blobToDataUrl(blob);
 }
 
-async function videoResultFromUrl(url: string, options?: RequestOptions): Promise<VideoGenerationResult> {
+async function videoResultFromUrl(config: AiConfig, url: string, options?: RequestOptions): Promise<VideoGenerationResult> {
+    const resolvedUrl = resolveVideoResultUrl(config, url);
+    const requiresUserToken = sameApiOrigin(config, resolvedUrl);
     try {
-        const response = await axios.get<Blob>(url, { responseType: "blob", signal: options?.signal });
+        const response = await axios.get<Blob>(resolvedUrl, { headers: requiresUserToken ? aiHeaders(config) : undefined, responseType: "blob", signal: options?.signal });
         await assertVideoBlob(response.data);
         return { blob: response.data };
     } catch (error) {
         if (axios.isCancel(error) || options?.signal?.aborted) throw error;
-        return { url, mimeType: "video/mp4" };
+        // A <video> element cannot attach a Bearer token. Returning a failed
+        // same-origin content URL would therefore claim writeback success but
+        // leave the canvas preview unplayable.
+        if (requiresUserToken) throw new Error(readAxiosError(error, apiText("videoDownloadFailed")));
+        return { url: resolvedUrl, mimeType: "video/mp4" };
     }
 }
 
@@ -353,8 +382,73 @@ function unwrapEnvelope<T>(payload: ApiEnvelope<T>, emptyMessage: string): T {
     return payload as T;
 }
 
+const VIDEO_SUCCESS_STATUSES = new Set(["completed", "succeeded", "success", "done", "finished"]);
+const VIDEO_FAILURE_STATUSES = new Set(["failed", "failure", "error", "cancelled", "canceled", "expired", "rejected", "blocked", "aborted", "timeout", "timed_out"]);
+
+function videoTaskStatus(payload: VideoResponse | SeedanceTask) {
+    const task = payload as VideoResponse;
+    return String(task.status || task.state || task.result?.status || task.result?.state || task.output?.status || task.output?.state || "")
+        .trim()
+        .toLowerCase();
+}
+
+function videoTaskError(payload: VideoResponse | SeedanceTask) {
+    const task = payload as VideoResponse;
+    return readApiErrorMessage(task.error) || readApiErrorMessage(task.error_message) || readApiErrorMessage(task.message) || readApiErrorMessage(task.msg) || readApiErrorMessage(task.result?.error) || readApiErrorMessage(task.output?.error);
+}
+
+async function downloadVideoContent(config: AiConfig, taskId: string, options?: RequestOptions): Promise<VideoGenerationResult> {
+    try {
+        const content = await axios.get<Blob>(aiApiUrl(config, `/videos/${encodeURIComponent(taskId)}/content?variant=video`), { headers: aiHeaders(config), responseType: "blob", signal: options?.signal });
+        await assertVideoBlob(content.data);
+        return { blob: content.data };
+    } catch (error) {
+        if (axios.isCancel(error) || options?.signal?.aborted) throw error;
+        const content = await axios.get<Blob>(aiApiUrl(config, `/videos/${encodeURIComponent(taskId)}/content`), { headers: aiHeaders(config), responseType: "blob", signal: options?.signal });
+        await assertVideoBlob(content.data);
+        return { blob: content.data };
+    }
+}
+
+function resolveVideoResultUrl(config: AiConfig, url: string) {
+    if (/^https?:\/\//i.test(url)) return url;
+    const apiOrigin = config.baseUrl
+        .trim()
+        .replace(/\/v1\/?$/i, "")
+        .replace(/\/+$/, "");
+    return `${apiOrigin}${url.startsWith("/") ? url : `/${url}`}`;
+}
+
+function sameApiOrigin(config: AiConfig, url: string) {
+    try {
+        return new URL(config.baseUrl).origin === new URL(url).origin;
+    } catch {
+        return false;
+    }
+}
+
 function videoResultUrl(payload: VideoResponse | SeedanceTask) {
-    return [payload.video_url, payload.result_url, payload.url, payload.content?.video_url, payload.content?.url].find((url) => typeof url === "string" && (isPublicMediaUrl(url) || /\.mp4(\?|#|$)/i.test(url)));
+    const task = payload as VideoResponse;
+    return [
+        task.video_url,
+        task.result_url,
+        task.url,
+        task.final_url,
+        ...(task.final_urls || []),
+        task.content?.video_url,
+        task.content?.result_url,
+        task.content?.url,
+        task.result?.video_url,
+        task.result?.result_url,
+        task.result?.url,
+        task.result?.final_url,
+        ...(task.result?.final_urls || []),
+        task.output?.video_url,
+        task.output?.result_url,
+        task.output?.url,
+        task.output?.final_url,
+        ...(task.output?.final_urls || []),
+    ].find((url) => typeof url === "string" && (isPublicMediaUrl(url) || url.startsWith("/") || /\.mp4(\?|#|$)/i.test(url)));
 }
 
 function readApiErrorMessage(value: unknown): string {
@@ -373,17 +467,8 @@ function readApiErrorMessage(value: unknown): string {
     if (typeof value !== "object") return "";
     const payload = value as { msg?: unknown; message?: unknown; error?: unknown; detail?: unknown };
     // error may be a string or an object containing a message.
-    const errorMsg =
-        typeof payload.error === "string"
-            ? payload.error
-            : (payload.error as { message?: unknown })?.message;
-    return (
-        readApiErrorMessage(payload.msg) ||
-        readApiErrorMessage(payload.message) ||
-        readApiErrorMessage(errorMsg) ||
-        readApiErrorMessage(payload.detail) ||
-        ""
-    );
+    const errorMsg = typeof payload.error === "string" ? payload.error : (payload.error as { message?: unknown })?.message;
+    return readApiErrorMessage(payload.msg) || readApiErrorMessage(payload.message) || readApiErrorMessage(errorMsg) || readApiErrorMessage(payload.detail) || "";
 }
 
 function readAxiosError(error: unknown, fallback: string) {
@@ -402,16 +487,18 @@ function statusMessage(status: number | undefined, fallback: string) {
     return status ? `${fallback}（${status}）` : fallback;
 }
 
-async function assertVideoBlob(blob: Blob) {
-    if (!blob.type.includes("json")) return;
+async function assertVideoBlob(blob: Blob): Promise<Blob> {
+    if (!blob.size) throw new Error(apiText("videoDownloadFailed"));
+    if (!/(?:json|text|html)/i.test(blob.type)) return blob;
     let payload: { code?: number; msg?: string; error?: { message?: string } };
     try {
         payload = JSON.parse(await blob.text()) as { code?: number; msg?: string; error?: { message?: string } };
     } catch {
-        return;
+        throw new Error(apiText("videoDownloadFailed"));
     }
     if (typeof payload.code === "number" && payload.code !== 0) throw new Error(readApiErrorMessage(payload) || apiText("videoDownloadFailed"));
     if (payload.error?.message) throw new Error(readApiErrorMessage(payload.error.message) || payload.error.message);
+    throw new Error(readApiErrorMessage(payload) || apiText("videoDownloadFailed"));
 }
 
 function isPublicMediaUrl(value: string) {

@@ -31,28 +31,30 @@ const chatModels = ["firefly-nano-banana-pro", "firefly-nano-banana2", "gpt-imag
 const isFireflyGptImage = model.startsWith("firefly-gpt-image-");
 const imagePart = (url) => ({ type: "image_url", image_url: { url } });
 const toUrl = (url) => typeof url === "string" && url.startsWith("/") ? apiBase + url : url;
+const imageResult = (item) => item?.b64_json ? "data:image/png;base64," + item.b64_json : item?.url ? toUrl(item.url) : null;
 const chatBody = { model: model === "firefly-nano-banana-pro" ? "firefly-nano-banana-pro-" + resolution + "-" + ratio : model === "firefly-nano-banana2" ? "firefly-nano-banana2-" + resolution + "-" + ratio : "firefly-gpt-image-" + resolution + "-" + ratio, messages: [{ role: "user", content: [...images.map(imagePart), { type: "text", text: prompt }] }], stream: true };
 if (chatModels.includes(model) || isFireflyGptImage) {
   const raw = await request({ method: "post", url: apiBase + "/v1/chat/completions", headers: { Authorization: "Bearer " + apiKey, "Content-Type": "application/json" }, responseType: "text", data: chatBody });
   const text = String(raw || "");
   const urls = [...text.matchAll(/(?:!\[[^\]]*\]\()?((?:https?:\/\/|\/v1\/)[^\s)"']+)/g)].map((m) => m[1]);
   if (urls.length) return urls.map(toUrl);
-  const fallback = await request({ method: "post", url: apiBase + "/v1/chat/completions", headers: { Authorization: "Bearer " + apiKey, "Content-Type": "application/json" }, data: { ...chatBody, stream: false } });
-  const content = fallback.choices?.[0]?.message?.content || fallback.choices?.[0]?.text || "";
-  return [...String(content).matchAll(/(?:https?:\/\/|\/v1\/)[^\s)"']+/g)].map((m) => toUrl(m[0]));
+  // A fallback request with stream:false would create a second billable image.
+  // Keep the original request as the sole source of truth and surface a clear
+  // response-format error if the upstream did not return an image URL.
+  throw new Error("图片生成完成但流式响应未包含图片地址");
 }
 const actualModel = model === "gpt-image-1-direct" ? "gpt-image-" + resolution + "-" + ratio : model === "image2" ? "gpt-image-2" : model === "image2-adobe" ? "Adobe-gpt-image-2" : model;
 const size = params.size || "1024x1024";
 const common = { model: actualModel, prompt, n: params.count, size, aspect_ratio: ratio, resolution };
 if (model.startsWith("豆姐")) {
   const data = await request({ method: "post", url: apiBase + "/v1/images/generations", headers: { Authorization: "Bearer " + apiKey, "Content-Type": "application/json" }, data: { ...common, image: images.length === 1 ? images[0] : images, sequential_image_generation: "disabled", response_format: "url", stream: false, watermark: false } });
-  return (data.data || []).map((item) => item.url ? toUrl(item.url) : item.b64_json && "data:image/png;base64," + item.b64_json);
+  return (data.data || []).map(imageResult).filter(Boolean);
 }
 if (images.length && model.includes("香蕉")) {
   const form = new FormData(); form.set("model", actualModel); form.set("prompt", prompt);
   for (const url of images) form.append("image", await (await fetch(url)).blob(), "reference.png");
   const data = await request({ method: "post", url: apiBase + "/v1/images/edits", headers: { Authorization: "Bearer " + apiKey }, data: form });
-  return (data.data || []).map((item) => item.url ? toUrl(item.url) : item.b64_json && "data:image/png;base64," + item.b64_json);
+  return (data.data || []).map(imageResult).filter(Boolean);
 }
 if (images.length && !model.startsWith("豆姐")) {
   const form = new FormData(); form.set("model", actualModel); form.set("prompt", prompt); form.set("n", String(params.count)); form.set("size", size); form.set("aspect_ratio", ratio); form.set("resolution", resolution);
@@ -61,21 +63,36 @@ if (images.length && !model.startsWith("豆姐")) {
   return (data.data || []).map((item) => item.url ? toUrl(item.url) : item.b64_json && "data:image/png;base64," + item.b64_json);
 }
 const data = await request({ method: "post", url: apiBase + "/v1/images/generations", headers: { Authorization: "Bearer " + apiKey, "Content-Type": "application/json" }, data: { ...common, response_format: "b64_json" } });
-return (data.data || []).map((item) => item.url || item.b64_json && "data:image/png;base64," + item.b64_json);
+return (data.data || []).map(imageResult).filter(Boolean);
 `;
 
 const VIDEO_SCRIPT = String.raw`
 const apiBase = baseUrl.replace(/\/v1\/?$/, "");
 const toUrl = (url) => typeof url === "string" && url.startsWith("/") ? apiBase + url : url;
+const isProtectedContentUrl = (url) => typeof url === "string" && url.startsWith(apiBase + "/v1/videos/") && /\/content(?:[?#]|$)/.test(url);
+const videoResult = async (url) => isProtectedContentUrl(url)
+  ? { blob: await request({ method: "get", url, headers: { Authorization: "Bearer " + apiKey }, responseType: "blob" }) }
+  : { url: toUrl(url) };
+const asList = (value) => Array.isArray(value) ? value : [value];
 const firstUrl = (state) => [
   state?.video_url, state?.result_url, state?.url, state?.final_url,
+  ...asList(state?.final_urls),
+  state?.content?.video_url, state?.content?.result_url, state?.content?.url,
   state?.result?.video_url, state?.result?.result_url, state?.result?.url,
+  state?.result?.final_url, ...asList(state?.result?.final_urls),
   state?.output?.video_url, state?.output?.url,
+  state?.output?.result_url, state?.output?.final_url, ...asList(state?.output?.final_urls),
   state?.data?.video_url, state?.data?.result_url, state?.data?.url,
-  state?.data?.result?.video_url, state?.data?.result?.result_url, state?.data?.result?.url,
+  state?.data?.final_url, ...asList(state?.data?.final_urls),
+  state?.data?.content?.video_url, state?.data?.content?.result_url, state?.data?.content?.url,
+  state?.data?.result?.video_url, state?.data?.result?.result_url, state?.data?.result?.url, state?.data?.result?.final_url, ...asList(state?.data?.result?.final_urls),
 ].find((value) => typeof value === "string" && value.trim());
-const taskStatus = (state) => String(state?.status || state?.state || state?.data?.status || state?.data?.state || state?.result?.status || "").toLowerCase();
-const taskError = (state) => state?.error?.message || state?.error_message || state?.message || state?.msg || state?.data?.error?.message || state?.data?.error_message || state?.data?.message || "AICopy 视频生成失败";
+const firstTaskId = (state) => [
+  state?.id, state?.task_id, state?.taskId, state?.request_id, state?.requestId, state?.video_id, state?.videoId, state?.job_id, state?.jobId,
+  state?.data?.id, state?.data?.task_id, state?.data?.taskId, state?.data?.request_id, state?.data?.requestId, state?.data?.video_id, state?.data?.videoId, state?.data?.job_id, state?.data?.jobId,
+].find((value) => typeof value === "string" && value.trim());
+const taskStatus = (state) => String(state?.status || state?.state || state?.data?.status || state?.data?.state || state?.result?.status || state?.result?.state || state?.output?.status || state?.output?.state || state?.data?.result?.status || state?.data?.result?.state || "").toLowerCase();
+const taskError = (state) => [state?.error?.message, state?.error, state?.error_message, state?.message, state?.msg, state?.data?.error?.message, state?.data?.error, state?.data?.error_message, state?.data?.message, state?.result?.error?.message, state?.result?.error, state?.output?.error?.message, state?.output?.error].find((value) => typeof value === "string" && value.trim()) || "AICopy 视频生成失败";
 let refs = images || []; let videos = params.videoReferences || []; let audios = params.audioReferences || [];
 const requiresPublicMedia = model.startsWith("sd") || model.startsWith("happyhorse") || model.includes("惊喜渠道") || model.includes("omni-fast");
 if (requiresPublicMedia) {
@@ -117,23 +134,32 @@ else if (model.includes("veo")) body = { model, prompt, aspect_ratio: ratio, res
 else if (model.includes("sd-2.5")) body = { model, prompt, duration: Math.min(29, Math.max(4, Number(seconds))), aspect_ratio: ratio, ...(refs.length ? { images: refs } : {}), ...(videos.length ? { videos } : {}), ...(audios.length ? { audios } : {}) };
 else if (model.includes("全系按秒")) body = { model, prompt, duration: Math.min(15, Math.max(4, Number(seconds))), aspect_ratio: ratio, ...(refs.length > 1 ? { image_url: first, extra_images: refs.slice(1), extra_videos: videos, extra_audios: audios } : first ? { image_url: first, start_image_url: first } : {}) };
 else if (model.startsWith("sd2-") && !model.includes("全系按秒")) body = { model, prompt, duration: Math.min(15, Math.max(4, Number(seconds))), metadata: { ratio, enableSound: params.generateAudio ? "on" : "off", modeType: refs.length > 1 ? "frames2video" : refs.length ? "image2video" : "text2video" }, ...(refs.length ? { images: refs } : {}), ...(videos.length ? { videos } : {}), ...(audios.length ? { audios } : {}) };
-else if (model.includes("sd-720") && !model.includes("900")) body = { model, prompt, aspect_ratio: ratio, seconds: model.includes("按次") ? "15" : seconds, resolution: "720p", ...(refs.length > 1 ? { reference_image_urls: refs, reference_videos: videos, reference_audios: audios } : first ? { first_frame_url: first, ...(last ? { last_frame_url: last } : {}) } : {}) };
+else if (model.includes("sd-720") && !model.includes("900")) body = {
+  model,
+  prompt,
+  aspect_ratio: ratio,
+  seconds: model.includes("按次") ? "15" : seconds,
+  resolution: "720p",
+  ...(refs.length > 1 || videos.length || audios.length
+    ? { ...(refs.length ? { reference_image_urls: refs } : {}), ...(videos.length ? { reference_videos: videos } : {}), ...(audios.length ? { reference_audios: audios } : {}) }
+    : first ? { first_frame_url: first } : {}),
+};
 else if (model.includes("sd-720满血-900")) body = { model, prompt, duration: "15", aspect_ratio: ratio, resolution: "720p", reference_images: refs.map((url) => ({ url })) };
 else if (model.includes("可灵-3.0") && isMultiRoute) body = { model, prompt, duration: Number(seconds), resolution, aspect_ratio: ratio, n: 1, images: refs, video_references: videos, audio_references: audios };
 else if (model.includes("快乐马1.1（不卡脸）惊喜") || model.includes("可灵-3.0")) body = { model, prompt, seconds, size: resolution, aspect_ratio: ratio, n: 1, ...(first ? { input_reference: { image_url: first } } : {}) };
 else if (refs.length > 1 || videos.length || audios.length) body = { ...body, image_references: refs, video_references: videos, audio_references: audios };
 else if (first) body = { ...body, input_reference: { image_url: first } };
 const created = await request({ method: "post", url: apiBase + path, headers: { Authorization: "Bearer " + apiKey, "Content-Type": "application/json" }, data: body });
-const taskId = created.id || created.task_id || created.taskId || created.data?.id || created.data?.task_id;
+const taskId = firstTaskId(created);
 const direct = firstUrl(created);
-  if (direct) return { url: toUrl(direct) };
+if (direct) return await videoResult(toUrl(direct));
 if (!taskId) throw new Error(created.message || created.msg || "AICopy 未返回视频任务 ID");
 const queryPath = path + "/" + encodeURIComponent(taskId);
 return await poll(() => request({ method: "get", url: apiBase + queryPath, headers: { Authorization: "Bearer " + apiKey } }), async (state) => {
   const url = firstUrl(state);
-  if (url) return { url: toUrl(url) };
+  if (url) return await videoResult(toUrl(url));
   const status = taskStatus(state);
-  if (["failed", "failure", "error", "cancelled", "canceled"].includes(status)) throw new Error(taskError(state));
+  if (["failed", "failure", "error", "cancelled", "canceled", "expired", "rejected", "blocked", "aborted", "timeout", "timed_out"].includes(status)) throw new Error(taskError(state));
   if (["completed", "succeeded", "success", "done", "finished"].includes(status)) {
     // SD 2.5 and SD 2.0 expose the completed MP4 through the documented
     // variant endpoint. Keep the plain endpoint as a compatibility fallback.
