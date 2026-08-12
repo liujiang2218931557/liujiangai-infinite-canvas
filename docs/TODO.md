@@ -15,6 +15,15 @@
     route returns a playable MP4, and the canvas video node reaches SUCCESS
     with previewable metadata.
 
+- [ ] Observe the current in-progress task using the repaired canvas poller.
+  - Files: `web/src/services/api/model-plugin.ts` and
+    `web/src/services/api/aicopy.ts`.
+  - Dependency: the task already submitted by the user must reach a terminal
+    New API status; do not submit a duplicate request.
+  - Acceptance: on success the script waits for authenticated video content and
+    writes it back to a video node; on failure it surfaces the New API failure
+    message rather than the misleading `scriptNoVideo` error.
+
 ## P1
 
 - [ ] Verify a normal user's New API Token can list models in the browser.

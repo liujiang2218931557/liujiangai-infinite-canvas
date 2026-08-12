@@ -49,3 +49,18 @@
 - The canvas code already writes returned image/video data into node metadata,
   including media previews. This behavior remains code/build verified only;
   it is not live verified until New API records a successful task.
+
+### Async video-polling defect
+
+- A live read-only check showed that a canvas submission reported "the model
+  script did not return video" while the matching New API task remained
+  `in progress` at 30%. The immediate canvas error was therefore not an
+  upstream terminal state.
+- The AICopy script uses an asynchronous poll extractor when a completed task
+  must fetch authenticated `/v1/videos/{task_id}/content?variant=video`.
+  The inherited polling helper did not await the extractor, so a
+  `Promise<null>` was truthy and polling returned before a video existed.
+- Updated `web/src/services/api/model-plugin.ts` to await extractors. This
+  preserves synchronous scripts and correctly treats asynchronous `null` as
+  pending. Typecheck and production build passed after the change. The local
+  Vite server was restarted; the already-created task must not be duplicated.

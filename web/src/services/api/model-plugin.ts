@@ -156,13 +156,17 @@ function sleep(ms: number, signal?: AbortSignal) {
 }
 
 function createPoll(signal?: AbortSignal) {
-    return async function poll<T, R>(request: () => Promise<T>, extract: (value: T) => R | null | undefined | false, options?: PluginPollOptions): Promise<R> {
+    return async function poll<T, R>(request: () => Promise<T>, extract: (value: T) => R | null | undefined | false | Promise<R | null | undefined | false>, options?: PluginPollOptions): Promise<R> {
         const intervalMs = options?.intervalMs ?? 2500;
         const timeoutMs = options?.timeoutMs ?? 300000;
         const deadline = performance.now() + timeoutMs;
         for (;;) {
             if (signal?.aborted) throw new DOMException("Aborted", "AbortError");
-            const result = extract(await request());
+            // Video result handlers may fetch a protected content endpoint once
+            // a task becomes terminal. Await them before deciding whether the
+            // task is still pending; otherwise a Promise<null> looks truthy and
+            // prematurely ends polling with no video result.
+            const result = await extract(await request());
             if (result !== null && result !== undefined && result !== false) return result;
             if (performance.now() >= deadline) throw new Error(i18n.t("modelPlugin.pollTimeout"));
             await sleep(intervalMs, signal);

@@ -17,6 +17,9 @@ Last reviewed: 2026-08-12.
 - [x] The built-in canvas inventory now exactly matches the seven models
   returned by the public New API pricing endpoint: three image models and four
   video models. The two per-request video models are forced to 15 seconds.
+- [x] The model-script polling helper awaits asynchronous result extractors.
+  This prevents an in-progress New API video task from being mistaken for an
+  empty final result while the script fetches protected video content.
 
 ## In Progress
 
@@ -24,6 +27,10 @@ Last reviewed: 2026-08-12.
 - [ ] P1: End-to-end browser validation with a newly created ordinary New API user token. Blocker: the token must be entered by its owner and must not be recorded in Git, terminal output, or screenshots.
 - [ ] P1: Controlled paid image/video generation validation. Blocker: user authorization and a deliberately limited test balance.
 - [ ] P0: Reconcile the New API task state with the AICopy task that was observed as completed in the upstream dashboard. Blocker: the two task IDs have not yet been correlated. On 2026-08-12 the New API task log held four canvas video tasks, all terminally failed as `upstream returned error`; its drawing and general logs both contained zero image records. No successful backend return or canvas writeback has yet been observed.
+- [ ] P0: Observe the already-running user-submitted video task through a
+  terminal New API state. It was confirmed as `in progress` at 30%, so the
+  earlier canvas error was a client polling defect rather than an immediate
+  New API failure. Do not submit a duplicate request merely to check it.
 
 ## Not Started
 
