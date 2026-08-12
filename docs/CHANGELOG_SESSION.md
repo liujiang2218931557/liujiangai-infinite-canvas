@@ -34,3 +34,18 @@
 - Confirmed that an AICopy dashboard can show a completed video while the corresponding New API task is failed; the task IDs must be correlated before changing New API's server-side task adaptor.
 - Updated the canvas video adapter to recognize common nested completed-result URL envelopes and to request the documented SD result endpoint `GET /v1/videos/{task_id}/content?variant=video`, with the old content endpoint retained as a fallback.
 - Added a local 5,000-character Seedance 2.5 final-prompt guard. The guard uses the prompt after connected text/context has been assembled and does not silently truncate creative input.
+
+### Live-log audit and model inventory correction
+
+- Read-only audit of `https://liujiangai.cn` found four task-log video entries
+  on 2026-08-12. Every entry ended as `upstream returned error`; no successful
+  video preview was available. The drawing-log and general-log views each
+  returned zero records, so no live image return could be inspected either.
+- Corrected the bundled model IDs to the seven live pricing entries: three
+  image models (`firefly-gpt-image-1k-1x1`, `gpt-image-2`,
+  `Adobe-gpt-image-2`) and four video models. The two per-request video models
+  are sent with a fixed 15-second duration so a user-selected duration cannot
+  contradict their published billing rule.
+- The canvas code already writes returned image/video data into node metadata,
+  including media previews. This behavior remains code/build verified only;
+  it is not live verified until New API records a successful task.

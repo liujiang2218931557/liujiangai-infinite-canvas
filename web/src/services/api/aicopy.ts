@@ -7,16 +7,20 @@ export const AICOPY_MEDIA_UPLOAD_URL = "https://1466482611-ifehsy5n9z.ap-guangzh
 // but each user enters their own upload token in the channel editor.
 export const AICOPY_MEDIA_UPLOAD_TOKEN = "";
 
+// These names are the public New API model IDs. Do not replace them with
+// display aliases: New API routing, pricing, and user group permissions all
+// key off the exact model ID.
 const imageModels = [
-    { name: "image2", displayName: "gpt-image-2 特价" },
-    { name: "gpt-image-2-原生4K", displayName: "gpt-image-2 官方渠道" },
+    { name: "firefly-gpt-image-1k-1x1", displayName: "GPT Image2 Fast" },
+    { name: "gpt-image-2", displayName: "GPT Image2 Standard" },
+    { name: "Adobe-gpt-image-2", displayName: "GPT Image2 Adobe" },
 ] as const;
 
 const videoModels = [
-    { name: "sd-2.5-720p不卡脸(按秒)", displayName: "sd-2.5 720p 特价渠道" },
-    { name: "sd-2.5-480p不卡脸(按秒)", displayName: "sd-2.5 480p 特价渠道" },
-    { name: "sd-2.5-轮换渠道（按次）", displayName: "sd-2.5 720p 惊喜特价渠道" },
-    { name: "sd-720满血-不卡脸（按次）", displayName: "seedance2.0 720p 特价渠道" },
+    { name: "sd-2.5-720p不卡脸(按秒)", displayName: "SD2.5 720p per second" },
+    { name: "sd-2.5-480p不卡脸(按秒)", displayName: "SD2.5 480p per second" },
+    { name: "sd-2.5-720p不卡脸(按次)", displayName: "SD2.5 720p per request (15 seconds)" },
+    { name: "sd-720满血-不卡脸（按次）", displayName: "SD2.0 720p per request (15 seconds)" },
 ] as const;
 
 const IMAGE_SCRIPT = String.raw`
@@ -24,10 +28,11 @@ const apiBase = baseUrl.replace(/\/v1\/?$/, "");
 const ratio = ({"1024x1024":"1x1","1280x1024":"5x4","864x1536":"9x16","1792x768":"21x9","1536x864":"16x9","1365x1024":"4x3","1536x1024":"3x2","1024x1280":"4x5","1024x1365":"3x4","1024x1536":"2x3"}[params.size] || "1x1");
 const resolution = params.size && Math.max(Number(params.size.split("x")[0]) || 1024, Number(params.size.split("x")[1]) || 1024) >= 3000 ? "4k" : params.size && Math.max(Number(params.size.split("x")[0]) || 1024, Number(params.size.split("x")[1]) || 1024) >= 1800 ? "2k" : "1k";
 const chatModels = ["firefly-nano-banana-pro", "firefly-nano-banana2", "gpt-image-1"];
+const isFireflyGptImage = model.startsWith("firefly-gpt-image-");
 const imagePart = (url) => ({ type: "image_url", image_url: { url } });
 const toUrl = (url) => typeof url === "string" && url.startsWith("/") ? apiBase + url : url;
 const chatBody = { model: model === "firefly-nano-banana-pro" ? "firefly-nano-banana-pro-" + resolution + "-" + ratio : model === "firefly-nano-banana2" ? "firefly-nano-banana2-" + resolution + "-" + ratio : "firefly-gpt-image-" + resolution + "-" + ratio, messages: [{ role: "user", content: [...images.map(imagePart), { type: "text", text: prompt }] }], stream: true };
-if (chatModels.includes(model)) {
+if (chatModels.includes(model) || isFireflyGptImage) {
   const raw = await request({ method: "post", url: apiBase + "/v1/chat/completions", headers: { Authorization: "Bearer " + apiKey, "Content-Type": "application/json" }, responseType: "text", data: chatBody });
   const text = String(raw || "");
   const urls = [...text.matchAll(/(?:!\[[^\]]*\]\()?((?:https?:\/\/|\/v1\/)[^\s)"']+)/g)].map((m) => m[1]);
@@ -78,7 +83,8 @@ if (requiresPublicMedia) {
   videos = await Promise.all(videos.map(uploadPublicMedia));
   audios = await Promise.all(audios.map(uploadPublicMedia));
 }
-const seconds = String(params.seconds || "6"); const resolution = params.resolution || "720p";
+const fixedFifteenSecondModel = model === "sd-2.5-720p不卡脸(按次)" || model === "sd-720满血-不卡脸（按次）";
+const seconds = fixedFifteenSecondModel ? "15" : String(params.seconds || "6"); const resolution = params.resolution || "720p";
 const ratio = (() => {
   if (params.ratio && /^\d+:\d+$/.test(params.ratio)) return params.ratio;
   const [width, height] = String(params.ratio || "").split("x").map(Number);

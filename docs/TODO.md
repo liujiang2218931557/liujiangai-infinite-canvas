@@ -1,5 +1,20 @@
 # TODO
 
+## P0
+
+- [ ] Reconcile and repair the existing video task failures before treating video writeback as live.
+  - Files: New API production image/relay patch outside this repository;
+    `web/src/services/api/aicopy.ts` and `web/src/services/api/video.ts` are
+    the client-side request/poll reference.
+  - Evidence: on 2026-08-12, New API listed four failed canvas video tasks with
+    `upstream returned error`; upstream success and New API task IDs were not
+    correlated. New API had no image records in drawing or general logs.
+  - Dependency: correlate one existing upstream task with its New API public
+    task ID, or explicitly authorize a capped test balance for one new task.
+  - Acceptance: New API task transitions to SUCCESS, the authenticated content
+    route returns a playable MP4, and the canvas video node reaches SUCCESS
+    with previewable metadata.
+
 ## P1
 
 - [ ] Verify a normal user's New API Token can list models in the browser.
@@ -10,7 +25,7 @@
 - [ ] Run one user-approved paid generation test for every exposed image/video model family.
   - Files: `web/src/services/api/aicopy.ts`, New API channel configuration outside this repository.
   - Dependency: a small capped user balance, upstream readiness, and public reference-media gateway for media inputs.
-  - Acceptance: a completed result and correct balance deduction are visible in the user's New API account; task polling returns a usable URL or content blob.
+  - Acceptance: a completed result and correct balance deduction are visible in the user's New API account; image/video records appear in the applicable New API log; task polling returns a usable URL or content blob; the canvas writes the result back to the originating node.
 
 ## P2
 
