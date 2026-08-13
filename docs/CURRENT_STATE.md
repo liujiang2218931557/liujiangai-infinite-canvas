@@ -1,6 +1,6 @@
 # Current State
 
-Last reviewed: 2026-08-12.
+Last reviewed: 2026-08-14.
 
 ## Completed
 
@@ -57,6 +57,9 @@ Last reviewed: 2026-08-12.
   Read-only model discovery also reports one configured SD2.5 model as removed
   upstream. This is provider inventory/availability work, not a canvas request
   or preview-writeback defect.
+- [ ] P0: New API Hong Kong VPS health must be reconciled before deploying the
+  pending JuKe adapter. Rainyun NoVNC showed `dockerd`, `postgres`, journald,
+  and worker tasks blocked for more than 120 seconds on 2026-08-13.
 
 ## Not Started
 
@@ -80,3 +83,4 @@ Last reviewed: 2026-08-12.
 | Video state diagnosis | The historical task that was at `in progress`/30% was checked against the upstream authenticated content route by the fixed New API poller and correctly became `FAILURE`/100%. The canvas now awaits an existing successful task to validate live media preview/writeback; no paid retry was made. |
 | SD2.0 403 diagnosis | Channel #5 maps `sd-720满血-不卡脸（按次）` to `sd2-720p`, and the canvas sends the documented `/v1/videos` request. The upstream Key lacks entitlement to `sd2-720p`. Update that upstream product/key permission before another test. |
 | SD2.5 503 diagnosis | The user token and channel #1 route work. Channel #1 passes its public SD2.5 name without a mapping or override; upstream rejected the 720p submission as temporarily unavailable and reports one configured SD2.5 model removed from its live inventory. |
+| New API host health | Deployment repository records a 2026-08-13 NoVNC stall; do not treat it as a canvas protocol failure or deploy while it persists. |

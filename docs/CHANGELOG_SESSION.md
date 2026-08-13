@@ -104,3 +104,16 @@
   progress, but it cannot validate a successful video preview because the
   upstream task itself had failed. The next live check needs an existing
   successful task or explicit authorization for a limited sandbox task.
+
+## 2026-08-14 - New API dependency and access reconciliation
+
+- Added `docs/NEW_API_PRODUCTION_DEPENDENCY.md` to keep the canvas-side model,
+  authentication, media URL, polling, and preview/writeback contract aligned
+  with the separate New API deployment repository.
+- Recorded that the built-in canvas URL remains `https://liujiangai.cn/v1`,
+  with user-owned New API tokens only; no administrator, upstream, Baota,
+  Rainyun, or COS credentials belong in this repository.
+- Recorded the current production blocker: Rainyun NoVNC showed blocked Docker
+  and PostgreSQL tasks for over 120 seconds. This must be resolved on the VPS
+  before the local JuKe adapter can be deployed; changing canvas request code
+  is not a remedy.

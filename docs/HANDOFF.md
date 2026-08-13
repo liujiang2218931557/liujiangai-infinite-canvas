@@ -21,6 +21,9 @@
 - Added Windows reproducibility instructions and a one-command verifier: `docs/WINDOWS_REPRODUCTION.md`, `.nvmrc`, `scripts/windows-verify.ps1`.
 - Repaired reproducible npm installation/build on Windows by removing an Ant Design 5-only wrapper dependency and pinning a valid icon artifact: `web/package.json`, `web/package-lock.json`, `web/src/components/layout/app-providers.tsx`.
 - Added handoff, architecture, runbook, state, TODO, changelog, and safe environment examples: root `docs/`, `.env.example`, `cloud-media-gateway/.env.example`.
+- Added `docs/NEW_API_PRODUCTION_DEPENDENCY.md`, which records the current
+  HTTPS-only backend contract, VNC/Baota dependency boundary, live writeback
+  verification limit, and the 2026-08-13 VPS host-stall finding.
 
 ## Work Not Finished
 
@@ -37,6 +40,10 @@
 - P1: User-owned New API Token browser smoke test for `/v1/models`; no actual Token is available to this repository or handoff.
 - P1: User-authorized limited paid generation test. Do not create paid requests merely as an engineering check.
 - P2: CORS narrowing, SCF abuse controls, and bundle size improvements.
+
+The New API deployment repository has the corresponding operational entry
+record at `docs/PRODUCTION_ACCESS_AND_DEPLOYMENT.md`. Read it before changing
+the server or assuming the pending JuKe channel is live.
 
 ## Architecture and Data Flow
 
