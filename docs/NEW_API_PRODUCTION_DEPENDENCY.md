@@ -89,3 +89,27 @@ rule, and the instruction to leave PostgreSQL/Redis/volumes untouched.
 If a model fails in the canvas, first correlate the user-visible error with the
 New API task log and upstream response. Do not issue retries merely to make a
 preview appear: a retry can bill the user and consume upstream balance.
+
+## GitHub handoff
+
+This canvas repository is pushed to:
+
+```text
+https://github.com/liujiang2218931557/liujiangai-infinite-canvas.git
+```
+
+After a documentation or code change, verify it with:
+
+```powershell
+git status --short
+git diff --check
+git add <intended-files>
+git commit -m "docs: describe the change"
+git push liujiang main
+git ls-remote liujiang refs/heads/main
+```
+
+If the local proxy prevents access to `github.com:443`, enable the operator's
+normal proxy/VPN and retry. For a one-command diagnostic that does not modify
+global settings, use `git -c http.proxy= -c https.proxy= push liujiang main`.
+Do not put tokens in remotes or use an untrusted mirror.

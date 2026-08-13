@@ -143,3 +143,9 @@ Not verified:
 2. Then `git pull`, install dependencies, copy only the appropriate example environment file if operating a gateway, and perform the documented smoke test.
 3. Begin from the highest-priority open item in `docs/TODO.md`; do not reintroduce explicitly rejected approaches.
 4. If documentation conflicts with code, the latest code and commit are authoritative. Fix the document immediately after confirming the code fact.
+
+When publishing this repository, use the existing `liujiang` remote and verify
+that `git ls-remote liujiang refs/heads/main` equals local `HEAD`. A temporary
+GitHub proxy error can be handled by enabling the operator's normal proxy or
+by using the per-command `git -c http.proxy= -c https.proxy=` diagnostic; do not
+change global Git settings or expose credentials.
